@@ -6,15 +6,16 @@
     <title>bid v1.0 — Complete Demo</title>
     <style>
         :root {
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --text: #e2e8f0;
-            --muted: #94a3b8;
-            --accent: #38bdf8;
-            --accent-dim: #0ea5e9;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --accent: #0ea5e9;
+            --accent-dim: #0284c7;
             --danger: #ef4444;
             --success: #22c55e;
             --warning: #f59e0b;
+            --border: #e2e8f0;
             --radius: 8px;
         }
         * { box-sizing: border-box; }
@@ -34,6 +35,8 @@
             border-radius: var(--radius);
             padding: 1.25rem;
             margin-bottom: 1.25rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         .card h2 {
             font-size: 1rem;
@@ -42,7 +45,7 @@
         }
         input, select, button {
             background: var(--bg);
-            border: 1px solid #334155;
+            border: 1px solid var(--border);
             color: var(--text);
             padding: 0.5rem 0.75rem;
             border-radius: var(--radius);
@@ -51,13 +54,14 @@
         input:focus, select:focus, button:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
         }
         select { cursor: pointer; }
         button {
             cursor: pointer;
             transition: all 0.15s;
         }
-        button:hover { background: #334155; }
+        button:hover { background: #e2e8f0; }
         button:active { transform: scale(0.97); }
         button.primary {
             background: var(--accent-dim);
@@ -70,11 +74,13 @@
             border-color: var(--danger);
             color: #fff;
         }
+        button.danger:hover { background: #dc2626; }
         button.success {
             background: var(--success);
             border-color: var(--success);
             color: #fff;
         }
+        button.success:hover { background: #16a34a; }
         button.warning {
             background: var(--warning);
             border-color: var(--warning);
@@ -91,12 +97,13 @@
             border-radius: 999px;
             font-size: 0.75rem;
             font-weight: 600;
-            background: var(--accent-dim);
+            background: var(--accent);
             color: #fff;
         }
         .badge-success { background: var(--success); }
-        .badge-info { background: var(--accent-dim); }
+        .badge-info { background: var(--accent); }
         .badge-danger { background: var(--danger); }
+        .badge-warning { background: var(--warning); }
         .muted { color: var(--muted); font-size: 0.8rem; }
         .todo-list { list-style: none; padding: 0; margin: 0; }
         .todo-list li {
@@ -104,7 +111,7 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.5rem 0;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid var(--border);
         }
         .todo-list li:last-child { border-bottom: none; }
         .todo-list li.done span { text-decoration: line-through; opacity: 0.5; }
@@ -118,7 +125,7 @@
         th, td {
             padding: 0.5rem;
             text-align: left;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid var(--border);
         }
         th {
             color: var(--muted);
@@ -127,7 +134,7 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
-        tr:hover td { background: rgba(56, 189, 248, 0.05); }
+        tr:hover td { background: rgba(14, 165, 233, 0.05); }
         .table-container {
             overflow-x: auto;
             margin-top: 0.5rem;
@@ -163,13 +170,14 @@
             right: 0;
             max-height: 200px;
             overflow-y: auto;
-            background: var(--bg);
-            border: 1px solid #334155;
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: var(--radius);
             margin-top: 0.25rem;
             padding: 0.25rem;
             display: none;
             z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .dropdown-list.show { display: block; }
         .dropdown-item {
@@ -181,8 +189,8 @@
             align-items: center;
             gap: 0.5rem;
         }
-        .dropdown-item:hover { background: #334155; }
-        .dropdown-item.selected { background: var(--accent-dim); }
+        .dropdown-item:hover { background: var(--bg); }
+        .dropdown-item.selected { background: var(--accent); color: #fff; }
         .dropdown-item .sub-text { color: var(--muted); font-size: 0.75rem; }
         .flex-1 { flex: 1; }
         .mt-1 { margin-top: 0.5rem; }
@@ -190,14 +198,14 @@
             background: var(--bg);
             padding: 0.25rem 0.5rem;
             border-radius: var(--radius);
-            border: 1px solid #334155;
+            border: 1px solid var(--border);
             display: inline-block;
         }
         .preview-box {
             background: var(--bg);
             padding: 0.75rem;
             border-radius: var(--radius);
-            border: 1px solid #334155;
+            border: 1px solid var(--border);
             min-height: 60px;
         }
         label { 
@@ -699,7 +707,7 @@
         const div = document.createElement('div');
         div.id = 'w-' + widgetCount;
         div.className = 'row';
-        div.style.cssText = 'background:var(--bg);padding:0.5rem;border-radius:var(--radius);margin-bottom:0.5rem;';
+        div.style.cssText = 'background:var(--bg);padding:0.5rem;border-radius:var(--radius);margin-bottom:0.5rem;border:1px solid var(--border);';
         div.innerHTML = `
             <span>Widget #${widgetCount}</span>
             <input bid="w-${widgetCount}-in" placeholder="Type..." style="flex:1">
