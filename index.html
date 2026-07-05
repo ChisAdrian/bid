@@ -293,15 +293,15 @@
     <h2>5. Search Dropdown Input</h2>
     <div class="row">
         <div class="search-container" style="flex:1;">
-            <input bid="country-search" placeholder="Search for a country..." autocomplete="off">
-            <button bid="clear-country-search" class="clear-btn">×</button>
-            <div bid="country-dropdown" class="dropdown-list"></div>
+            <input id="country-search" placeholder="Search for a country..." autocomplete="off">
+            <button id="clear-country-search" class="clear-btn">×</button>
+            <div id="country-dropdown" class="dropdown-list"></div>
         </div>
-        <button bid="select-country-btn" class="success">Select</button>
+        <button id="select-country-btn" class="success">Select</button>
     </div>
     <div class="row mt-1">
         <span class="muted">Selected:</span>
-        <span bid="selected-country" class="selected-value">None</span>
+        <span id="selected-country" class="selected
     </div>
 </div>
 
@@ -310,20 +310,20 @@
     <h2>6. User Directory</h2>
     <div class="row" style="margin-bottom:0.75rem;">
         <div class="search-container">
-            <input bid="search-input" placeholder="Search users...">
-            <button bid="clear-search" class="clear-btn">×</button>
+            <input id="search-input" placeholder="Search users...">
+            <button id="clear-search" class="clear-btn">×</button>
         </div>
-        <select bid="role-filter" style="flex:0 0 auto;">
+        <select id="role-filter" style="flex:0 0 auto;">
             <option value="all">All Roles</option>
             <option value="developer">Developer</option>
             <option value="designer">Designer</option>
             <option value="manager">Manager</option>
         </select>
-        <button bid="add-user-btn" class="success">+ Add</button>
+        <button id="add-user-btn" class="success">+ Add</button>
     </div>
 
     <!-- Search dropdown -->
-    <div bid="user-dropdown" class="dropdown-list"></div>
+    <div id="user-dropdown" class="dropdown-list"></div>
 
     <!-- Table -->
     <div class="table-container">
@@ -336,11 +336,11 @@
                     <th style="width:60px;">Action</th>
                 </tr>
             </thead>
-            <tbody bid="user-table"></tbody>
+            <tbody id="user-table"></tbody>
         </table>
     </div>
     <p class="muted" style="margin-top:0.5rem;">
-        Showing <span bid="visible-count">0</span> of <span bid="total-count">0</span> users
+        Showing <span id="visible-count">0</span> of <span id="total-count">0</span> users
     </p>
 </div>
 
@@ -348,8 +348,8 @@
 <div class="card">
     <h2>7. Cleanup</h2>
     <div class="row">
-        <button bid="spawn-btn">Spawn</button>
-        <button bid="destroy-btn" class="danger">Destroy</button>
+        <button id="spawn-btn">Spawn</button>
+        <button id="destroy-btn" class="danger">Destroy</button>
     </div>
     <div id="widget-box" style="margin-top:0.75rem;"></div>
 </div>
@@ -468,7 +468,7 @@
         user.active.value = true;
     });
 
-    // === 5. INPUT WITH SEARCH DROPDOWN ===
+    // === 5. INPUT WITH SEARCH DROPDOWN (FIXED) ===
     const countries = [
         'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 
         'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
@@ -513,27 +513,39 @@
     });
 
     bindValue('country-search', countrySearch);
+    bindText('selected-country', computed([selectedCountry], () => selectedCountry.peek() || 'None'));
+
+    // Use bindList with click events - the key is to use event delegation on the container
+    const countryDropdown = document.getElementById('country-dropdown');
+    const countryInput = document.getElementById('country-search');
 
     bindList('country-dropdown', filteredCountries, (country, index, existing) => {
         if (existing) {
+            // Update existing element
             existing.textContent = country;
             return existing;
         }
         const div = document.createElement('div');
         div.className = 'dropdown-item';
         div.textContent = country;
-        div.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            selectedCountry.value = country;
-            countrySearch.value = country;
-            document.querySelector('[bid="country-dropdown"]').classList.remove('show');
-        });
+        div.dataset.value = country;
         return div;
     });
 
-    const countryInput = document.querySelector('[bid="country-search"]');
-    const countryDropdown = document.querySelector('[bid="country-dropdown"]');
+    // Event delegation for click events on dropdown items
+    countryDropdown.addEventListener('click', (e) => {
+        const item = e.target.closest('.dropdown-item');
+        if (item) {
+            const country = item.dataset.value || item.textContent;
+            selectedCountry.value = country;
+            countrySearch.value = country;
+            countryDropdown.classList.remove('show');
+            countryInput.focus();
+            countryInput.select();
+        }
+    });
 
+    // Show/hide dropdown
     countryInput.addEventListener('focus', () => {
         if (countrySearch.value.trim()) {
             countryDropdown.classList.add('show');
@@ -554,194 +566,5 @@
         }, 200);
     });
 
-    bindClick('clear-country-search', () => {
-        countrySearch.value = '';
-        countryDropdown.classList.remove('show');
-    });
-
-    bindClick('select-country-btn', () => {
-        const val = countrySearch.value.trim();
-        if (val && countries.includes(val)) {
-            selectedCountry.value = val;
-        } else if (val) {
-            alert('Please select a valid country from the dropdown');
-        }
-    });
-
-    bindText('selected-country', computed([selectedCountry], () => {
-        return selectedCountry.peek() || 'None';
-    }));
-
-    // === 6. TABLE WITH SEARCH DROPDOWN ===
-    const users = signal([
-        { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role: 'developer' },
-        { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'designer' },
-        { id: 3, name: 'Carol White', email: 'carol@example.com', role: 'manager' },
-        { id: 4, name: 'Dave Brown', email: 'dave@example.com', role: 'developer' },
-        { id: 5, name: 'Eve Davis', email: 'eve@example.com', role: 'designer' },
-        { id: 6, name: 'Frank Wilson', email: 'frank@example.com', role: 'manager' },
-    ]);
-    let nextUserId = 7;
-
-    const searchTerm = signal('');
-    const roleFilter = signal('all');
-
-    const filteredUsers = computed([users, searchTerm, roleFilter], () => {
-        let result = users.peek();
-        const term = searchTerm.peek().toLowerCase();
-        const role = roleFilter.peek();
-        if (term) {
-            result = result.filter(u => 
-                u.name.toLowerCase().includes(term) || 
-                u.email.toLowerCase().includes(term)
-            );
-        }
-        if (role !== 'all') {
-            result = result.filter(u => u.role === role);
-        }
-        return result;
-    });
-
-    bindValue('search-input', searchTerm);
-    bindValue('role-filter', roleFilter);
-
-    bindClick('clear-search', () => { searchTerm.value = ''; });
-
-    const userDropdownItems = computed([searchTerm, users], () => {
-        const term = searchTerm.peek().toLowerCase();
-        if (!term) return [];
-        return users.peek().filter(u => 
-            u.name.toLowerCase().includes(term) || 
-            u.email.toLowerCase().includes(term)
-        ).slice(0, 5);
-    });
-
-    bindList('user-dropdown', userDropdownItems, (item, index, existing) => {
-        if (existing) {
-            existing.innerHTML = `
-                <span>${item.name}</span>
-                <span class="sub-text">${item.email}</span>
-            `;
-            return existing;
-        }
-        const div = document.createElement('div');
-        div.className = 'dropdown-item';
-        div.innerHTML = `
-            <span>${item.name}</span>
-            <span class="sub-text">${item.email}</span>
-        `;
-        div.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            searchTerm.value = item.name;
-            document.querySelector('[bid="user-dropdown"]').classList.remove('show');
-        });
-        return div;
-    }, { keyFn: item => item.id });
-
-    const userInput = document.querySelector('[bid="search-input"]');
-    const userDropdown = document.querySelector('[bid="user-dropdown"]');
-
-    userInput.addEventListener('focus', () => {
-        if (searchTerm.value.trim()) {
-            userDropdown.classList.add('show');
-        }
-    });
-
-    userInput.addEventListener('input', () => {
-        if (searchTerm.value.trim()) {
-            userDropdown.classList.add('show');
-        } else {
-            userDropdown.classList.remove('show');
-        }
-    });
-
-    userInput.addEventListener('blur', () => {
-        setTimeout(() => {
-            userDropdown.classList.remove('show');
-        }, 200);
-    });
-
-    bindList('user-table', filteredUsers, (item, index, existing) => {
-        if (existing) {
-            const cells = existing.querySelectorAll('td');
-            cells[0].textContent = item.name;
-            cells[1].textContent = item.email;
-            cells[2].innerHTML = `<span class="badge badge-success">${item.role}</span>`;
-            return existing;
-        }
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${item.name}</td>
-            <td>${item.email}</td>
-            <td><span class="badge badge-success">${item.role}</span></td>
-            <td><button class="danger" style="background:transparent;border:none;color:var(--danger);cursor:pointer;">×</button></td>
-        `;
-        const delBtn = tr.querySelector('button');
-        delBtn.addEventListener('click', () => {
-            users.value = users.value.filter(u => u.id !== item.id);
-        });
-        return tr;
-    }, { keyFn: item => item.id });
-
-    bindText('visible-count', computed([filteredUsers], () => filteredUsers.peek().length));
-    bindText('total-count', computed([users], () => users.peek().length));
-
-    bindClick('add-user-btn', () => {
-        const name = prompt('Enter user name:');
-        if (!name) return;
-        const email = prompt('Enter email:');
-        if (!email) return;
-        const role = prompt('Enter role (developer/designer/manager):') || 'developer';
-        users.value = [...users.value, { 
-            id: nextUserId++, 
-            name: name.trim(), 
-            email: email.trim(), 
-            role: role.toLowerCase().trim() 
-        }];
-    });
-
-    // === 7. CLEANUP ===
-    let widgetCount = 0;
-    bindClick('spawn-btn', () => {
-        widgetCount++;
-        const div = document.createElement('div');
-        div.id = 'w-' + widgetCount;
-        div.className = 'row';
-        div.style.cssText = 'background:var(--bg);padding:0.5rem;border-radius:var(--radius);margin-bottom:0.5rem;border:1px solid var(--border);';
-        div.innerHTML = `
-            <span>Widget #${widgetCount}</span>
-            <input bid="w-${widgetCount}-in" placeholder="Type..." style="flex:1">
-            <span bid="w-${widgetCount}-out" class="badge">...</span>
-        `;
-        document.getElementById('widget-box').appendChild(div);
-
-        const ws = signal('');
-        bindValue('w-' + widgetCount + '-in', ws);
-        bindText('w-' + widgetCount + '-out', ws, v => v || '...');
-    });
-
-    bindClick('destroy-btn', () => {
-        const box = document.getElementById('widget-box');
-        const last = box.lastElementChild;
-        if (!last) return;
-        unbind('#' + last.id);
-        last.remove();
-    });
-
-    console.log('🚀 bid v1.0 complete demo loaded!');
-    console.log('📚 Features covered:');
-    console.log('  ✅ Signals & reactivity');
-    console.log('  ✅ Computed values');
-    console.log('  ✅ Two-way binding (bindValue)');
-    console.log('  ✅ Event binding (bindClick)');
-    console.log('  ✅ List binding with keys (bindList)');
-    console.log('  ✅ Nested signals');
-    console.log('  ✅ Checkbox binding (bindClick + subscribe)');
-    console.log('  ✅ Search dropdown');
-    console.log('  ✅ Table with filtering');
-    console.log('  ✅ Cleanup (unbind)');
-    console.log('  ✅ Dynamic widget creation');
-</script>
-
-</body>
-</html>
+    // Keyboard support
+    countryInput.addEventListener('keydo
