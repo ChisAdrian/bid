@@ -567,4 +567,249 @@
     });
 
     // Keyboard support
-    countryInput.addEventListener('keydo
+    countryInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const items = countryDropdown.querySelectorAll('.dropdown-item');
+            if (items.length === 1) {
+                const country = items[0].dataset.value || items[0].textContent;
+                selectedCountry.value = country;
+                countrySearch.value = country;
+                countryDropdown.classList.remove('show');
+            } else if (items.length > 0) {
+                const country = items[0].dataset.value || items[0].textContent;
+                selectedCountry.value = country;
+                countrySearch.value = country;
+                countryDropdown.classList.remove('show');
+            }
+            e.preventDefault();
+        }
+        if (e.key === 'Escape') {
+            countryDropdown.classList.remove('show');
+            countryInput.blur();
+        }
+    });
+
+    // Click outside to close
+    document.addEventListener('click', (e) => {
+        const container = document.querySelector('.search-container');
+        if (container && !container.contains(e.target)) {
+            countryDropdown.classList.remove('show');
+        }
+    });
+
+    // Clear button
+    bindClick('clear-country-search', () => {
+        countrySearch.value = '';
+        countryDropdown.classList.remove('show');
+        countryInput.focus();
+    });
+
+    // Select button
+    bindClick('select-country-btn', () => {
+        const val = countrySearch.value.trim();
+        if (val && countries.includes(val)) {
+            selectedCountry.value = val;
+            countryDropdown.classList.remove('show');
+        } else if (val) {
+            alert('Please select a valid country from the dropdown');
+            countryInput.focus();
+        }
+    });
+
+    // === 6. TABLE WITH SEARCH DROPDOWN (FIXED - using event delegation) ===
+    const users = signal([
+        { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role: 'developer' },
+        { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'designer' },
+        { id: 3, name: 'Carol White', email: 'carol@example.com', role: 'manager' },
+        { id: 4, name: 'Dave Brown', email: 'dave@example.com', role: 'developer' },
+        { id: 5, name: 'Eve Davis', email: 'eve@example.com', role: 'designer' },
+        { id: 6, name: 'Frank Wilson', email: 'frank@example.com', role: 'manager' },
+    ]);
+    let nextUserId = 7;
+
+    const searchTerm = signal('');
+    const roleFilter = signal('all');
+
+    const filteredUsers = computed([users, searchTerm, roleFilter], () => {
+        let result = users.peek();
+        const term = searchTerm.peek().toLowerCase();
+        const role = roleFilter.peek();
+        if (term) {
+            result = result.filter(u => 
+                u.name.toLowerCase().includes(term) || 
+                u.email.toLowerCase().includes(term)
+            );
+        }
+        if (role !== 'all') {
+            result = result.filter(u => u.role === role);
+        }
+        return result;
+    });
+
+    bindValue('search-input', searchTerm);
+    bindValue('role-filter', roleFilter);
+
+    // User dropdown with event delegation
+    const userDropdown = document.getElementById('user-dropdown');
+    const userInput = document.getElementById('search-input');
+
+    const userDropdownItems = computed([searchTerm, users], () => {
+        const term = searchTerm.peek().toLowerCase();
+        if (!term) return [];
+        return users.peek().filter(u => 
+            u.name.toLowerCase().includes(term) || 
+            u.email.toLowerCase().includes(term)
+        ).slice(0, 5);
+    });
+
+    bindList('user-dropdown', userDropdownItems, (item, index, existing) => {
+        if (existing) {
+            existing.innerHTML = `
+                <span>${item.name}</span>
+                <span class="sub-text">${item.email}</span>
+            `;
+            existing.dataset.value = item.name;
+            return existing;
+        }
+        const div = document.createElement('div');
+        div.className = 'dropdown-item';
+        div.innerHTML = `
+            <span>${item.name}</span>
+            <span class="sub-text">${item.email}</span>
+        `;
+        div.dataset.value = item.name;
+        return div;
+    }, { keyFn: item => item.id });
+
+    // Event delegation for user dropdown
+    userDropdown.addEventListener('click', (e) => {
+        const item = e.target.closest('.dropdown-item');
+        if (item) {
+            const name = item.dataset.value;
+            searchTerm.value = name;
+            userDropdown.classList.remove('show');
+            userInput.focus();
+            userInput.select();
+        }
+    });
+
+    // Show/hide user dropdown
+    userInput.addEventListener('focus', () => {
+        if (searchTerm.value.trim()) {
+            userDropdown.classList.add('show');
+        }
+    });
+
+    userInput.addEventListener('input', () => {
+        if (searchTerm.value.trim()) {
+            userDropdown.classList.add('show');
+        } else {
+            userDropdown.classList.remove('show');
+        }
+    });
+
+    userInput.addEventListener('blur', () => {
+        setTimeout(() => {
+            userDropdown.classList.remove('show');
+        }, 200);
+    });
+
+    // Click outside to close user dropdown
+    document.addEventListener('click', (e) => {
+        const container = document.querySelector('.search-container');
+        if (container && !container.contains(e.target)) {
+            userDropdown.classList.remove('show');
+        }
+    });
+
+    bindClick('clear-search', () => {
+        searchTerm.value = '';
+        userDropdown.classList.remove('show');
+        userInput.focus();
+    });
+
+    // Table rendering
+    bindList('user-table', filteredUsers, (item, index, existing) => {
+        if (existing) {
+            const cells = existing.querySelectorAll('td');
+            cells[0].textContent = item.name;
+            cells[1].textContent = item.email;
+            cells[2].innerHTML = `<span class="badge badge-success">${item.role}</span>`;
+            return existing;
+        }
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.name}</td>
+            <td>${item.email}</td>
+            <td><span class="badge badge-success">${item.role}</span></td>
+            <td><button class="danger" style="background:transparent;border:none;color:var(--danger);cursor:pointer;">×</button></td>
+        `;
+        const delBtn = tr.querySelector('button');
+        delBtn.addEventListener('click', () => {
+            users.value = users.value.filter(u => u.id !== item.id);
+        });
+        return tr;
+    }, { keyFn: item => item.id });
+
+    bindText('visible-count', computed([filteredUsers], () => filteredUsers.peek().length));
+    bindText('total-count', computed([users], () => users.peek().length));
+
+    bindClick('add-user-btn', () => {
+        const name = prompt('Enter user name:');
+        if (!name) return;
+        const email = prompt('Enter email:');
+        if (!email) return;
+        const role = prompt('Enter role (developer/designer/manager):') || 'developer';
+        users.value = [...users.value, { 
+            id: nextUserId++, 
+            name: name.trim(), 
+            email: email.trim(), 
+            role: role.toLowerCase().trim() 
+        }];
+    });
+
+    // === 7. CLEANUP ===
+    let widgetCount = 0;
+    bindClick('spawn-btn', () => {
+        widgetCount++;
+        const div = document.createElement('div');
+        div.id = 'w-' + widgetCount;
+        div.className = 'row';
+        div.style.cssText = 'background:var(--bg);padding:0.5rem;border-radius:var(--radius);margin-bottom:0.5rem;border:1px solid var(--border);';
+        div.innerHTML = `
+            <span>Widget #${widgetCount}</span>
+            <input id="w-${widgetCount}-in" placeholder="Type..." style="flex:1">
+            <span id="w-${widgetCount}-out" class="badge">...</span>
+        `;
+        document.getElementById('widget-box').appendChild(div);
+
+        const ws = signal('');
+        bindValue('w-' + widgetCount + '-in', ws);
+        bindText('w-' + widgetCount + '-out', ws, v => v || '...');
+    });
+
+    bindClick('destroy-btn', () => {
+        const box = document.getElementById('widget-box');
+        const last = box.lastElementChild;
+        if (!last) return;
+        unbind('#' + last.id);
+        last.remove();
+    });
+
+    console.log('🚀 bid v1.0 complete demo loaded!');
+    console.log('📚 Features covered:');
+    console.log('  ✅ Signals & reactivity');
+    console.log('  ✅ Computed values');
+    console.log('  ✅ Two-way binding (bindValue)');
+    console.log('  ✅ Event binding (bindClick)');
+    console.log('  ✅ List binding with keys (bindList)');
+    console.log('  ✅ Nested signals');
+    console.log('  ✅ Checkbox binding (bindClick + subscribe)');
+    console.log('  ✅ Search dropdown (FIXED - event delegation)');
+    console.log('  ✅ Table with filtering');
+    console.log('  ✅ Cleanup (unbind)');
+    console.log('  ✅ Dynamic widget creation');
+</script>
+
+</body>
+</html>
