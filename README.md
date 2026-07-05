@@ -79,16 +79,91 @@ const fullName = computed([firstName, lastName], () => {
 });
 ```
 
-### List Binding
+### List Binding (Keyed Diffing)
 
-Render lists with keyed diffing — add, remove, reorder without rebuilding the entire DOM.
+Render lists with **keyed diffing** — add, remove, reorder without rebuilding the entire DOM.
+
+#### The Problem
+
+Without keys, every array change destroys and recreates the entire DOM:
+
+```javascript
+// NAIVE: innerHTML = array.map(...)
+// [A, B, C] → prepend X → destroys A, B, C; creates X, A, B, C
+// Result: 4 nodes destroyed, 4 created. Focus lost. State lost.
+```
+
+#### The Solution
+
+`bindList` assigns each DOM node a **key** — an ID that survives across updates:
+
+```javascript
+bindList('list', items, renderFn, {
+    keyFn: item => item.id   // ← each node gets a stable identity
+});
+```
+
+#### The Algorithm
+
+1. **Build Map**: `{ id1→nodeA, id2→nodeB, id3→nodeC }` — O(n)
+2. **Detect Removed**: keys in DOM but not in new array → remove nodes
+3. **Detect Added**: keys in new array but not in DOM → create nodes
+4. **Reorder**: `insertBefore()` to match new positions
+5. **Update**: call `renderFn(item, index, existing)` for existing nodes
+
+#### The `renderFn` Signature
+
+```javascript
+(item, index, existing) => Element
+```
+
+| `existing` | Action |
+|------------|--------|
+| `null` / `undefined` | **Create** new DOM node |
+| `Element` | **Update** existing node in place, return it |
+
+#### Why Keys Matter
+
+**Without `keyFn` (index as key):**
+
+```
+Array: [A, B, C] → prepend X → [X, A, B, C]
+Index:  0   1   2              0   1   2   3
+Keys:   0→A, 1→B, 2→C          0→X, 1→A, 2→B, 3→C
+Problem: key 0 changed A→X → A destroyed, all nodes shift
+```
+
+**With `keyFn: item => item.id`:**
+
+```
+Array: [A, B, C] → prepend X → [X, A, B, C]
+IDs:   1,  2,  3              4,  1,  2,  3
+Keys:   1→A, 2→B, 3→C         4→X, 1→A, 2→B, 3→C
+Result: X created, A/B/C moved. Zero destruction.
+```
+
+#### Performance
+
+| Operation | Naive `innerHTML` | `bindList` with keys |
+|-----------|-------------------|----------------------|
+| Add 1 item | O(n) recreate | O(1) create + insert |
+| Remove 1 item | O(n) recreate | O(1) remove |
+| Reorder | O(n) recreate | O(n) moves |
+| Update text | O(n) recreate | O(1) `textContent` |
+
+With 1000 items: naive destroys ~1000 nodes per change. `bindList` touches exactly what changed.
+
+#### Example
 
 ```javascript
 bindList('todo-list', todos, (item, index, existing) => {
   if (existing) {
+    // Node exists — UPDATE in place, don't recreate!
     existing.querySelector('span').textContent = item.text;
+    existing.querySelector('input').checked = item.done;
     return existing;
   }
+  // Node is new — CREATE it
   const li = document.createElement('li');
   li.innerHTML = `<span>${escapeHtml(item.text)}</span>`;
   return li;
