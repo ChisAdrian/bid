@@ -176,7 +176,7 @@
             margin-top: 0.25rem;
             padding: 0.25rem;
             display: none;
-            z-index: 1000;
+            z-index: 9999;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .dropdown-list.show { display: block; }
@@ -263,67 +263,67 @@
     <div class="grid-2">
         <div class="col">
             <h3 class="muted">User Profile</h3>
-            <input id="user-name" placeholder="Name" value="John Doe">
-            <input id="user-email" placeholder="Email" value="john@example.com">
-            <select id="user-role">
+            <input bid="user-name" placeholder="Name" value="John Doe">
+            <input bid="user-email" placeholder="Email" value="john@example.com">
+            <select bid="user-role">
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
                 <option value="moderator">Moderator</option>
             </select>
             <label>
-                <input type="checkbox" id="user-active" checked>
+                <input type="checkbox" bid="user-active" checked>
                 <span>Active</span>
             </label>
-            <button id="reset-user" class="warning">Reset Profile</button>
+            <button bid="reset-user" class="warning">Reset Profile</button>
         </div>
         <div class="col">
             <h3 class="muted">Profile Preview</h3>
             <div class="preview-box">
-                <span id="profile-preview">John Doe (john@example.com) - user - ✅ Active</span>
+                <span bid="profile-preview">John Doe (john@example.com) - user - ✅ Active</span>
             </div>
             <div>
-                <span id="user-status" class="badge badge-success">🟢 Active</span>
+                <span bid="user-status" class="badge badge-success">🟢 Active</span>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 5. INPUT WITH SEARCH DROPDOWN -->
+<!-- 5. INPUT WITH SEARCH DROPDOWN (BID WAY) -->
 <div class="card">
     <h2>5. Search Dropdown Input</h2>
-    <div class="row">
+    <div bid="country-wrapper" class="row">
         <div class="search-container" style="flex:1;">
-            <input id="country-search" placeholder="Search for a country..." autocomplete="off">
-            <button id="clear-country-search" class="clear-btn">×</button>
-            <div id="country-dropdown" class="dropdown-list"></div>
+            <input bid="country-search" placeholder="Search for a country..." autocomplete="off">
+            <button bid="clear-country-search" class="clear-btn">×</button>
+            <div bid="country-dropdown" class="dropdown-list"></div>
         </div>
-        <button id="select-country-btn" class="success">Select</button>
+        <button bid="select-country-btn" class="success">Select</button>
     </div>
     <div class="row mt-1">
         <span class="muted">Selected:</span>
-        <span id="selected-country" class="selected
+        <span bid="selected-country" class="selected-value">None</span>
     </div>
 </div>
 
-<!-- 6. TABLE WITH SEARCH DROPDOWN -->
+<!-- 6. TABLE WITH SEARCH DROPDOWN (BID WAY) -->
 <div class="card">
     <h2>6. User Directory</h2>
-    <div class="row" style="margin-bottom:0.75rem;">
+    <div bid="user-wrapper" class="row" style="margin-bottom:0.75rem;">
         <div class="search-container">
-            <input id="search-input" placeholder="Search users...">
-            <button id="clear-search" class="clear-btn">×</button>
+            <input bid="search-input" placeholder="Search users...">
+            <button bid="clear-search" class="clear-btn">×</button>
         </div>
-        <select id="role-filter" style="flex:0 0 auto;">
+        <select bid="role-filter" style="flex:0 0 auto;">
             <option value="all">All Roles</option>
             <option value="developer">Developer</option>
             <option value="designer">Designer</option>
             <option value="manager">Manager</option>
         </select>
-        <button id="add-user-btn" class="success">+ Add</button>
+        <button bid="add-user-btn" class="success">+ Add</button>
     </div>
 
     <!-- Search dropdown -->
-    <div id="user-dropdown" class="dropdown-list"></div>
+    <div bid="user-dropdown" class="dropdown-list"></div>
 
     <!-- Table -->
     <div class="table-container">
@@ -336,11 +336,11 @@
                     <th style="width:60px;">Action</th>
                 </tr>
             </thead>
-            <tbody id="user-table"></tbody>
+            <tbody bid="user-table"></tbody>
         </table>
     </div>
     <p class="muted" style="margin-top:0.5rem;">
-        Showing <span id="visible-count">0</span> of <span id="total-count">0</span> users
+        Showing <span bid="visible-count">0</span> of <span bid="total-count">0</span> users
     </p>
 </div>
 
@@ -348,8 +348,8 @@
 <div class="card">
     <h2>7. Cleanup</h2>
     <div class="row">
-        <button id="spawn-btn">Spawn</button>
-        <button id="destroy-btn" class="danger">Destroy</button>
+        <button bid="spawn-btn">Spawn</button>
+        <button bid="destroy-btn" class="danger">Destroy</button>
     </div>
     <div id="widget-box" style="margin-top:0.75rem;"></div>
 </div>
@@ -433,15 +433,13 @@
     bindValue('user-email', user.email);
     bindValue('user-role', user.role);
 
-    // Clean checkbox binding using bindClick (checkbox acts like a button!)
-    const checkbox = document.getElementById('user-active');
-    
+    // Checkbox binding using bindClick (checkbox acts like a button!)
     bindClick('user-active', () => {
         user.active.value = !user.active.value;
     });
     
     user.active.subscribe((value) => {
-        checkbox.checked = value;
+        document.querySelector('[bid="user-active"]').checked = value;
     });
 
     const profilePreview = computed(
@@ -468,7 +466,7 @@
         user.active.value = true;
     });
 
-    // === 5. INPUT WITH SEARCH DROPDOWN (FIXED) ===
+    // === 5. INPUT WITH SEARCH DROPDOWN (BID WAY - NO addEventListener) ===
     const countries = [
         'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 
         'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
@@ -503,6 +501,7 @@
 
     const countrySearch = signal('');
     const selectedCountry = signal('');
+    const isCountryOpen = signal(false);
 
     const filteredCountries = computed([countrySearch], () => {
         const term = countrySearch.peek().toLowerCase().trim();
@@ -514,15 +513,13 @@
 
     bindValue('country-search', countrySearch);
     bindText('selected-country', computed([selectedCountry], () => selectedCountry.peek() || 'None'));
+    bindClass('country-dropdown', isCountryOpen, 'show');
 
-    // Use bindList with click events - the key is to use event delegation on the container
-    const countryDropdown = document.getElementById('country-dropdown');
-    const countryInput = document.getElementById('country-search');
-
+    // Render dropdown
     bindList('country-dropdown', filteredCountries, (country, index, existing) => {
         if (existing) {
-            // Update existing element
             existing.textContent = country;
+            existing.dataset.value = country;
             return existing;
         }
         const div = document.createElement('div');
@@ -532,76 +529,47 @@
         return div;
     });
 
-    // Event delegation for click events on dropdown items
-    countryDropdown.addEventListener('click', (e) => {
+    // Click on search input - show dropdown
+    bindClick('country-search', () => {
+        if (countrySearch.value.trim()) {
+            isCountryOpen.value = true;
+        }
+    });
+
+    // Click on dropdown items - select country
+    bindClick('country-dropdown', (e) => {
         const item = e.target.closest('.dropdown-item');
-        if (item) {
-            const country = item.dataset.value || item.textContent;
-            selectedCountry.value = country;
-            countrySearch.value = country;
-            countryDropdown.classList.remove('show');
-            countryInput.focus();
-            countryInput.select();
+        if (item && item.dataset.value) {
+            selectedCountry.value = item.dataset.value;
+            countrySearch.value = item.dataset.value;
+            isCountryOpen.value = false;
         }
     });
 
-    // Show/hide dropdown
-    countryInput.addEventListener('focus', () => {
-        if (countrySearch.value.trim()) {
-            countryDropdown.classList.add('show');
+    // Click on wrapper (outside) - close dropdown
+    bindClick('country-wrapper', (e) => {
+        const target = e.target;
+        const isSearch = target.closest('[bid="country-search"]');
+        const isDropdown = target.closest('[bid="country-dropdown"]');
+        const isClear = target.closest('[bid="clear-country-search"]');
+        const isSelect = target.closest('[bid="select-country-btn"]');
+        if (!isSearch && !isDropdown && !isClear && !isSelect) {
+            isCountryOpen.value = false;
         }
     });
 
-    countryInput.addEventListener('input', () => {
-        if (countrySearch.value.trim()) {
-            countryDropdown.classList.add('show');
-        } else {
-            countryDropdown.classList.remove('show');
-        }
-    });
-
-    countryInput.addEventListener('blur', () => {
-        setTimeout(() => {
-            countryDropdown.classList.remove('show');
-        }, 200);
-    });
-
-    // Keyboard support
-    countryInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const items = countryDropdown.querySelectorAll('.dropdown-item');
-            if (items.length === 1) {
-                const country = items[0].dataset.value || items[0].textContent;
-                selectedCountry.value = country;
-                countrySearch.value = country;
-                countryDropdown.classList.remove('show');
-            } else if (items.length > 0) {
-                const country = items[0].dataset.value || items[0].textContent;
-                selectedCountry.value = country;
-                countrySearch.value = country;
-                countryDropdown.classList.remove('show');
-            }
-            e.preventDefault();
-        }
-        if (e.key === 'Escape') {
-            countryDropdown.classList.remove('show');
-            countryInput.blur();
-        }
-    });
-
-    // Click outside to close
-    document.addEventListener('click', (e) => {
-        const container = document.querySelector('.search-container');
-        if (container && !container.contains(e.target)) {
-            countryDropdown.classList.remove('show');
+    // Subscribe to search term changes
+    countrySearch.subscribe((val) => {
+        if (val.trim()) {
+            isCountryOpen.value = true;
         }
     });
 
     // Clear button
     bindClick('clear-country-search', () => {
         countrySearch.value = '';
-        countryDropdown.classList.remove('show');
-        countryInput.focus();
+        isCountryOpen.value = false;
+        document.querySelector('[bid="country-search"]').focus();
     });
 
     // Select button
@@ -609,14 +577,14 @@
         const val = countrySearch.value.trim();
         if (val && countries.includes(val)) {
             selectedCountry.value = val;
-            countryDropdown.classList.remove('show');
+            isCountryOpen.value = false;
         } else if (val) {
             alert('Please select a valid country from the dropdown');
-            countryInput.focus();
+            document.querySelector('[bid="country-search"]').focus();
         }
     });
 
-    // === 6. TABLE WITH SEARCH DROPDOWN (FIXED - using event delegation) ===
+    // === 6. TABLE WITH SEARCH DROPDOWN (BID WAY) ===
     const users = signal([
         { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role: 'developer' },
         { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'designer' },
@@ -629,6 +597,7 @@
 
     const searchTerm = signal('');
     const roleFilter = signal('all');
+    const isUserOpen = signal(false);
 
     const filteredUsers = computed([users, searchTerm, roleFilter], () => {
         let result = users.peek();
@@ -648,11 +617,9 @@
 
     bindValue('search-input', searchTerm);
     bindValue('role-filter', roleFilter);
+    bindClass('user-dropdown', isUserOpen, 'show');
 
-    // User dropdown with event delegation
-    const userDropdown = document.getElementById('user-dropdown');
-    const userInput = document.getElementById('search-input');
-
+    // User dropdown items
     const userDropdownItems = computed([searchTerm, users], () => {
         const term = searchTerm.peek().toLowerCase();
         if (!term) return [];
@@ -681,51 +648,46 @@
         return div;
     }, { keyFn: item => item.id });
 
-    // Event delegation for user dropdown
-    userDropdown.addEventListener('click', (e) => {
+    // Click on search input - show dropdown
+    bindClick('search-input', () => {
+        if (searchTerm.value.trim()) {
+            isUserOpen.value = true;
+        }
+    });
+
+    // Click on dropdown items - select user
+    bindClick('user-dropdown', (e) => {
         const item = e.target.closest('.dropdown-item');
-        if (item) {
-            const name = item.dataset.value;
-            searchTerm.value = name;
-            userDropdown.classList.remove('show');
-            userInput.focus();
-            userInput.select();
+        if (item && item.dataset.value) {
+            searchTerm.value = item.dataset.value;
+            isUserOpen.value = false;
         }
     });
 
-    // Show/hide user dropdown
-    userInput.addEventListener('focus', () => {
-        if (searchTerm.value.trim()) {
-            userDropdown.classList.add('show');
+    // Click on wrapper (outside) - close dropdown
+    bindClick('user-wrapper', (e) => {
+        const target = e.target;
+        const isSearch = target.closest('[bid="search-input"]');
+        const isDropdown = target.closest('[bid="user-dropdown"]');
+        const isClear = target.closest('[bid="clear-search"]');
+        const isAdd = target.closest('[bid="add-user-btn"]');
+        const isFilter = target.closest('[bid="role-filter"]');
+        if (!isSearch && !isDropdown && !isClear && !isAdd && !isFilter) {
+            isUserOpen.value = false;
         }
     });
 
-    userInput.addEventListener('input', () => {
-        if (searchTerm.value.trim()) {
-            userDropdown.classList.add('show');
-        } else {
-            userDropdown.classList.remove('show');
-        }
-    });
-
-    userInput.addEventListener('blur', () => {
-        setTimeout(() => {
-            userDropdown.classList.remove('show');
-        }, 200);
-    });
-
-    // Click outside to close user dropdown
-    document.addEventListener('click', (e) => {
-        const container = document.querySelector('.search-container');
-        if (container && !container.contains(e.target)) {
-            userDropdown.classList.remove('show');
+    // Subscribe to search term changes
+    searchTerm.subscribe((val) => {
+        if (val.trim()) {
+            isUserOpen.value = true;
         }
     });
 
     bindClick('clear-search', () => {
         searchTerm.value = '';
-        userDropdown.classList.remove('show');
-        userInput.focus();
+        isUserOpen.value = false;
+        document.querySelector('[bid="search-input"]').focus();
     });
 
     // Table rendering
@@ -778,8 +740,8 @@
         div.style.cssText = 'background:var(--bg);padding:0.5rem;border-radius:var(--radius);margin-bottom:0.5rem;border:1px solid var(--border);';
         div.innerHTML = `
             <span>Widget #${widgetCount}</span>
-            <input id="w-${widgetCount}-in" placeholder="Type..." style="flex:1">
-            <span id="w-${widgetCount}-out" class="badge">...</span>
+            <input bid="w-${widgetCount}-in" placeholder="Type..." style="flex:1">
+            <span bid="w-${widgetCount}-out" class="badge">...</span>
         `;
         document.getElementById('widget-box').appendChild(div);
 
@@ -805,7 +767,7 @@
     console.log('  ✅ List binding with keys (bindList)');
     console.log('  ✅ Nested signals');
     console.log('  ✅ Checkbox binding (bindClick + subscribe)');
-    console.log('  ✅ Search dropdown (FIXED - event delegation)');
+    console.log('  ✅ Search dropdown (BID WAY - no addEventListener!)');
     console.log('  ✅ Table with filtering');
     console.log('  ✅ Cleanup (unbind)');
     console.log('  ✅ Dynamic widget creation');
