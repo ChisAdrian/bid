@@ -11,9 +11,9 @@
     // INTERNALS & STORAGE
     // =============================================
     let batchDepth = 0;
-    const pendingEffects = new Map();     // fn -> latest arg
-    const elementBindings = new WeakMap(); // el -> Set<unsubscribeFn>
-    const elementHandlers = new WeakMap(); // el -> Array<{type, handler, options}>
+    const pendingEffects = new Map();
+    const elementBindings = new WeakMap();
+    const elementHandlers = new WeakMap();
 
     function scheduleEffect(fn, arg) {
         if (batchDepth > 0) {
@@ -60,6 +60,18 @@
     }
 
     // =============================================
+    // CLEANUP MECHANICS (MOVED HERE - FIXED)
+    // =============================================
+    function unbindSubTree(el) {
+        untrackBindings(el);
+        purgeHandlers(el);
+        el.querySelectorAll('*').forEach(child => {
+            untrackBindings(child);
+            purgeHandlers(child);
+        });
+    }
+
+    // =============================================
     // CORE: Signal
     // =============================================
     function signal(initialValue) {
@@ -96,13 +108,12 @@
     }
 
     // =============================================
-    // CORE: Element Selection (Optimized Layout Footprint)
+    // CORE: Element Selection
     // =============================================
     function getElement(selector) {
         if (selector instanceof Element) return selector;
 
         if (typeof selector === 'string') {
-            // High-speed heuristic: if it looks like a complex CSS string, bypass single lookup attribute checks
             const isComplexCss = /[\s>+~.[#:]/.test(selector);
             
             if (!isComplexCss) {
@@ -181,7 +192,6 @@
         return signalObj;
     }
 
-    // Fixed attribute logic to pass strings correctly for value attributes, or empty toggle strings for flags
     function bindAttr(selector, attr, signalObj, condition) {
         const el = getElement(selector);
         const update = val => {
@@ -231,8 +241,9 @@
         return signalObj;
     }
 
-    function bindInput(selector, signalObj, eventType) {
-        return bindValue(selector, signalObj, eventType);
+    // FIXED: Match UMD version (no extra eventType parameter)
+    function bindInput(selector, signalObj) {
+        return bindValue(selector, signalObj, 'input');
     }
 
     function bindCheckbox(selector, signalObj) {
@@ -292,59 +303,10 @@
         return el;
     }
 
-    // Base Listeners Shortcuts
-    const shortcuts = [
-        ['bindClick', 'click'], ['bindDblClick', 'dblclick'], ['bindMouseEnter', 'mouseenter'],
-        ['bindMouseLeave', 'mouseleave'], ['bindMouseOver', 'mouseover'], ['bindMouseOut', 'mouseout'],
-        ['bindMouseDown', 'mousedown'], ['bindMouseUp', 'mouseup'], ['bindMouseMove', 'mousemove'],
-        ['bindContextMenu', 'contextmenu'], ['bindWheel', 'wheel'], ['bindKeyDown', 'keydown'],
-        ['bindKeyUp', 'keyup'], ['bindKeyPress', 'keypress'], ['bindChange', 'change'],
-        ['bindSubmit', 'submit'], ['bindFocus', 'focus'], ['bindBlur', 'blur'],
-        ['bindFocusIn', 'focusin'], ['bindFocusOut', 'focusout'], ['bindReset', 'reset'],
-        ['bindDrag', 'drag'], ['bindDragStart', 'dragstart'], ['bindDragEnd', 'dragend'],
-        ['bindDragEnter', 'dragenter'], ['bindDragLeave', 'dragleave'], ['bindDragOver', 'dragover'],
-        ['bindDrop', 'drop']
-    ];
-
-    const bid = {
-        signal: signal,
-        batch: batch,
-        getElement: getElement,
-        getElements: getElements,
-        escapeHtml: escapeHtml,
-        bindText: bindText,
-        bindHtml: bindHtml,
-        bindClass: bindClass,
-        bindAttr: bindAttr,
-        bindProp: bindProp,
-        bindStyle: bindStyle,
-        bindValue: bindValue,
-        bindInput: bindInput,
-        bindCheckbox: bindCheckbox,
-        bindSelect: bindSelect,
-        bindRadio: bindRadio,
-        bindEvent: bindEvent
-    };
-
-    shortcuts.forEach(([name, type]) => {
-        bid[name] = (selector, handler) => bindEvent(selector, type, handler);
-    });
-
-    // Special global window mappings
-    bid.bindTouchStart = (sel, h) => bindEvent(sel, 'touchstart', h, { passive: true });
-    bid.bindTouchEnd = (sel, h) => bindEvent(sel, 'touchend', h, { passive: true });
-    bid.bindTouchMove = (sel, h) => bindEvent(sel, 'touchmove', h, { passive: true });
-    bid.bindTouchCancel = (sel, h) => bindEvent(sel, 'touchcancel', h, { passive: true });
-    
-    bid.bindResize = h => { window.addEventListener('resize', h); return window; };
-    bid.bindScroll = h => { window.addEventListener('scroll', h); return window; };
-    bid.bindLoad = h => { window.addEventListener('load', h); return window; };
-    bid.bindDOMContentLoaded = h => { document.addEventListener('DOMContentLoaded', h); return document; };
-
     // =============================================
-    // COMPUTED (Glitched Evaluation Fixed)
+    // COMPUTED
     // =============================================
-    bid.computed = function(dependencies, computeFn) {
+    function computed(dependencies, computeFn) {
         let value;
         let isStale = true;
         const result = signal(undefined);
@@ -373,7 +335,7 @@
             },
             set value(v) { throw new Error('Cannot set value of a computed signal'); },
             subscribe(fn) {
-                recompute();           // ensure result.value is current
+                recompute();
                 return result.subscribe(fn);
             },
             peek() {
@@ -382,15 +344,16 @@
             },
             dispose() { unsubs.forEach(u => u()); }
         };
-    };
+    }
 
     // =============================================
-    // LIST BINDING (Drift-Free Key Reconciliation)
+    // LIST BINDING (FIXED: Added updateFn support)
     // =============================================
-    bid.bindList = function(containerSelector, arraySignal, renderFn, options) {
+    function bindList(containerSelector, arraySignal, renderFn, options) {
         options = options || {};
         const container = getElement(containerSelector);
         const keyFn = options.keyFn || null;
+        const updateFn = options.updateFn || null; // FIXED: Added this
 
         function update(arr) {
             const existing = Array.from(container.children);
@@ -399,7 +362,6 @@
 
             existing.forEach(el => elMap.set(el._bidKey, el));
 
-            // 1. Structural removal & down-tree event purging
             const newKeySet = new Set(newKeys);
             existing.forEach(el => {
                 if (!newKeySet.has(el._bidKey)) {
@@ -408,7 +370,6 @@
                 }
             });
 
-            // 2. Strict index anchor insertion logic
             arr.forEach((item, index) => {
                 const key = newKeys[index];
                 let el = elMap.get(key);
@@ -416,8 +377,8 @@
                 if (!el) {
                     el = renderFn(item, index);
                     el._bidKey = key;
-                } else if (renderFn.length >= 3) {
-                    renderFn(item, index, el);
+                } else if (updateFn) { // FIXED: Use updateFn instead of renderFn.length
+                    updateFn(item, index, el);
                 }
 
                 const targetChild = container.children[index];
@@ -432,28 +393,79 @@
         trackBinding(container, unsub);
 
         return arraySignal;
-    };
-
-    // =============================================
-    // CLEANUP MECHANICS
-    // =============================================
-    function unbindSubTree(el) {
-        untrackBindings(el);
-        purgeHandlers(el);
-        el.querySelectorAll('*').forEach(child => {
-            untrackBindings(child);
-            purgeHandlers(child);
-        });
     }
 
-    bid.unbind = function(selector) {
+    // =============================================
+    // UNBIND FUNCTIONS (FIXED: Now use unbindSubTree from closure)
+    // =============================================
+    function unbind(selector) {
         unbindSubTree(getElement(selector));
-    };
+    }
 
-    bid.unbindAll = function(container) {
+    function unbindAll(container) {
         container = container || document;
         container.querySelectorAll('*').forEach(unbindSubTree);
+    }
+
+    // =============================================
+    // EVENT SHORTCUTS
+    // =============================================
+    const shortcuts = [
+        ['bindClick', 'click'], ['bindDblClick', 'dblclick'], ['bindMouseEnter', 'mouseenter'],
+        ['bindMouseLeave', 'mouseleave'], ['bindMouseOver', 'mouseover'], ['bindMouseOut', 'mouseout'],
+        ['bindMouseDown', 'mousedown'], ['bindMouseUp', 'mouseup'], ['bindMouseMove', 'mousemove'],
+        ['bindContextMenu', 'contextmenu'], ['bindWheel', 'wheel'], ['bindKeyDown', 'keydown'],
+        ['bindKeyUp', 'keyup'], ['bindKeyPress', 'keypress'], ['bindChange', 'change'],
+        ['bindSubmit', 'submit'], ['bindFocus', 'focus'], ['bindBlur', 'blur'],
+        ['bindFocusIn', 'focusin'], ['bindFocusOut', 'focusout'], ['bindReset', 'reset'],
+        ['bindDrag', 'drag'], ['bindDragStart', 'dragstart'], ['bindDragEnd', 'dragend'],
+        ['bindDragEnter', 'dragenter'], ['bindDragLeave', 'dragleave'], ['bindDragOver', 'dragover'],
+        ['bindDrop', 'drop']
+    ];
+
+    // =============================================
+    // BID API
+    // =============================================
+    const bid = {
+        signal: signal,
+        batch: batch,
+        getElement: getElement,
+        getElements: getElements,
+        escapeHtml: escapeHtml,
+        bindText: bindText,
+        bindHtml: bindHtml,
+        bindClass: bindClass,
+        bindAttr: bindAttr,
+        bindProp: bindProp,
+        bindStyle: bindStyle,
+        bindValue: bindValue,
+        bindInput: bindInput,
+        bindCheckbox: bindCheckbox,
+        bindSelect: bindSelect,
+        bindRadio: bindRadio,
+        bindEvent: bindEvent,
+        computed: computed,
+        bindList: bindList,
+        unbind: unbind,
+        unbindAll: unbindAll
     };
+
+    // Add event shortcuts
+    shortcuts.forEach(([name, type]) => {
+        bid[name] = (selector, handler) => bindEvent(selector, type, handler);
+    });
+
+    // Special touch events (passive)
+    bid.bindTouchStart = (sel, h) => bindEvent(sel, 'touchstart', h, { passive: true });
+    bid.bindTouchEnd = (sel, h) => bindEvent(sel, 'touchend', h, { passive: true });
+    bid.bindTouchMove = (sel, h) => bindEvent(sel, 'touchmove', h, { passive: true });
+    bid.bindTouchCancel = (sel, h) => bindEvent(sel, 'touchcancel', h, { passive: true });
+
+    // Window / Document events
+    bid.bindResize = h => { window.addEventListener('resize', h); return window; };
+    bid.bindScroll = h => { window.addEventListener('scroll', h); return window; };
+    bid.bindLoad = h => { window.addEventListener('load', h); return window; };
+    bid.bindDOMContentLoaded = h => { document.addEventListener('DOMContentLoaded', h); return document; };
 
     // =============================================
     // EXPOSE
