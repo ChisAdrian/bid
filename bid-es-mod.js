@@ -433,7 +433,7 @@ export const bid = {
     bindList,
     unbind,
     unbindAll,
-    unbindSubTree,
+    unbindSubTree,bindClick,
     ...bindings
 };
 
