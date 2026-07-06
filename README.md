@@ -1,5 +1,7 @@
 # bid
 
+<a href="https://chisadrian.github.io/bid/">Demo </a>
+
 A tiny, explicit reactive binding library for the DOM. No magic, no templates, no build step — just signals and functions.
 
 ```
