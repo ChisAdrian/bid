@@ -148,7 +148,8 @@
             const cssEls = document.querySelectorAll(selector);
             if (cssEls.length > 0) return cssEls;
 
-            throw new Error('Elements "' Error('Elements "' + selector + '" not found');
+            //throw new Error('Elements "' Error('Elements "' + selector + '" not found');
+            throw new Error('Elements "' + selector + '" not found');
         }
 
         throw new Error('Invalid selector: ' + selector);
