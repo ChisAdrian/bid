@@ -1,7 +1,6 @@
 // =============================================
-// bid v1.0 (Refactored & Optimized)
+// bid v1.1 (Patched & Optimized)
 // A tiny, explicit reactive binding library
-// Philosophy: Explicit over implicit
 // =============================================
 
 (function(global) {
@@ -60,7 +59,7 @@
     }
 
     // =============================================
-    // CLEANUP MECHANICS (MOVED HERE - FIXED)
+    // CLEANUP MECHANICS
     // =============================================
     function unbindSubTree(el) {
         untrackBindings(el);
@@ -81,7 +80,7 @@
         return {
             get value() { return value; },
             set value(newValue) {
-                if (value !== newValue) {
+                if (!Object.is(value, newValue)) {
                     value = newValue;
                     subscribers.forEach(fn => scheduleEffect(fn, value));
                 }
@@ -149,7 +148,7 @@
             const cssEls = document.querySelectorAll(selector);
             if (cssEls.length > 0) return cssEls;
 
-            throw new Error('Elements "' + selector + '" not found');
+            throw new Error('Elements "' Error('Elements "' + selector + '" not found');
         }
 
         throw new Error('Invalid selector: ' + selector);
@@ -241,7 +240,6 @@
         return signalObj;
     }
 
-    // FIXED: Match UMD version (no extra eventType parameter)
     function bindInput(selector, signalObj) {
         return bindValue(selector, signalObj, 'input');
     }
@@ -276,14 +274,14 @@
 
     function bindRadio(selector, signalObj) {
         const els = getElements(selector);
-
-        const update = val => els.forEach(el => el.checked = (el.value === val));
-        update(signalObj.value);
-        
-        const unsub = signalObj.subscribe(update);
         const handler = e => { if (e.target.checked) signalObj.value = e.target.value; };
 
         els.forEach(el => {
+            const update = val => el.checked = (el.value === val);
+            update(signalObj.value);
+            
+            const unsub = signalObj.subscribe(update);
+            
             trackBinding(el, unsub);
             el.addEventListener('change', handler);
             trackHandler(el, 'change', handler);
@@ -314,7 +312,7 @@
         function recompute() {
             if (!isStale) return;
             const newValue = computeFn();
-            if (value !== newValue) {
+            if (!Object.is(value, newValue)) {
                 value = newValue;
                 result.value = value;
             }
@@ -347,13 +345,17 @@
     }
 
     // =============================================
-    // LIST BINDING (FIXED: Added updateFn support)
+    // LIST BINDING
     // =============================================
     function bindList(containerSelector, arraySignal, renderFn, options) {
         options = options || {};
         const container = getElement(containerSelector);
         const keyFn = options.keyFn || null;
-        const updateFn = options.updateFn || null; // FIXED: Added this
+        const updateFn = options.updateFn || null;
+
+        // Clear previous list children before re-binding
+        Array.from(container.children).forEach(child => unbindSubTree(child));
+        untrackBindings(container);
 
         function update(arr) {
             const existing = Array.from(container.children);
@@ -377,7 +379,7 @@
                 if (!el) {
                     el = renderFn(item, index);
                     el._bidKey = key;
-                } else if (updateFn) { // FIXED: Use updateFn instead of renderFn.length
+                } else if (updateFn) {
                     updateFn(item, index, el);
                 }
 
@@ -396,7 +398,7 @@
     }
 
     // =============================================
-    // UNBIND FUNCTIONS (FIXED: Now use unbindSubTree from closure)
+    // UNBIND FUNCTIONS
     // =============================================
     function unbind(selector) {
         unbindSubTree(getElement(selector));
@@ -404,7 +406,7 @@
 
     function unbindAll(container) {
         container = container || document;
-        container.querySelectorAll('*').forEach(unbindSubTree);
+        unbindSubTree(container);
     }
 
     // =============================================
@@ -450,18 +452,15 @@
         unbindAll: unbindAll
     };
 
-    // Add event shortcuts
     shortcuts.forEach(([name, type]) => {
         bid[name] = (selector, handler) => bindEvent(selector, type, handler);
     });
 
-    // Special touch events (passive)
     bid.bindTouchStart = (sel, h) => bindEvent(sel, 'touchstart', h, { passive: true });
     bid.bindTouchEnd = (sel, h) => bindEvent(sel, 'touchend', h, { passive: true });
     bid.bindTouchMove = (sel, h) => bindEvent(sel, 'touchmove', h, { passive: true });
     bid.bindTouchCancel = (sel, h) => bindEvent(sel, 'touchcancel', h, { passive: true });
 
-    // Window / Document events
     bid.bindResize = h => { window.addEventListener('resize', h); return window; };
     bid.bindScroll = h => { window.addEventListener('scroll', h); return window; };
     bid.bindLoad = h => { window.addEventListener('load', h); return window; };
@@ -473,4 +472,4 @@
     if (typeof window !== 'undefined') window.bid = bid;
     if (typeof module !== 'undefined' && module.exports) module.exports = bid;
 
-})(typeof window !== 'undefined' ? window : global);
+})(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));
