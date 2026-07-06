@@ -983,9 +983,7 @@
             unbind('#' + last.id);
             last.remove();
         });
-
-        console.log('🚀 bid v1.0 complete demo loaded!');
-
+    /******************* Modal ****************/
         function createModal(id) {
             const isOpen = signal(false);
 
@@ -1012,8 +1010,6 @@
                 isOpen: () => isOpen.value
             };
         }
-
-
         function confirmModal() {
             alert('confirmed-modal')
             modal.close()
