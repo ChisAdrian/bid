@@ -525,8 +525,7 @@
             <button bid="add-user-btn" class="success">+ Add</button>
         </div>
 
-        <!-- Search dropdown -->
-        <div bid="user-dropdown" class="dropdown-list"></div>
+
 
         <!-- Table -->
         <div class="table-container">
@@ -742,14 +741,14 @@
         bindClass('country-dropdown', isCountryOpen, 'show');
 
         // Render dropdown
-       // Render dropdown
+        // Render dropdown
         bindList('country-dropdown', filteredCountries, (country) => {
             const div = document.createElement('div');
             div.className = 'dropdown-item';
             div.textContent = country;
             div.dataset.value = country;
             return div;
-        }, { 
+        }, {
             keyFn: country => country // <-- This is the magic fix!
         });
 
