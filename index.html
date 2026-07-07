@@ -578,7 +578,7 @@
     <!--
     <script src="./bid.js"></script>-->
 
-    <script src="https://cdn.jsdelivr.net/gh/ChisAdrian/bid@main/bidjsV1.1.js"></script>
+    <script src="./bidjsV1.1.js"></script>
     <script>
         const { signal, computed, bindText, bindValue, bindClick, bindList, bindClass, unbind, bindEvent } = bid;
 
@@ -742,17 +742,15 @@
         bindClass('country-dropdown', isCountryOpen, 'show');
 
         // Render dropdown
-        bindList('country-dropdown', filteredCountries, (country, index, existing) => {
-            if (existing) {
-                existing.textContent = country;
-                existing.dataset.value = country;
-                return existing;
-            }
+       // Render dropdown
+        bindList('country-dropdown', filteredCountries, (country) => {
             const div = document.createElement('div');
             div.className = 'dropdown-item';
             div.textContent = country;
             div.dataset.value = country;
             return div;
+        }, { 
+            keyFn: country => country // <-- This is the magic fix!
         });
 
         // Click on search input - show dropdown
@@ -983,7 +981,7 @@
             unbind('#' + last.id);
             last.remove();
         });
-    /******************* Modal ****************/
+        /******************* Modal ****************/
         function createModal(id) {
             const isOpen = signal(false);
 
