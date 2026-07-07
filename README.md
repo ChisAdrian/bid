@@ -80,6 +80,9 @@ const fullName = computed([firstName, lastName], () => {
   return firstName.peek() + ' ' + lastName.peek();
 });
 ```
+⚠️ Warning: If you dynamically create and destroy computed signals, you must manually call
+ myComputed.dispose() when you are done with them. 
+Otherwise, they will remain in memory and continue recalculating in the background.
 
 ### List Binding (Keyed Diffing)
 
@@ -118,6 +121,10 @@ bindList('list', items, renderFn, {
 ```javascript
 (item, index, existing) => Element
 ```
+
+⚠️ Warning: Do not attach new bid.bind... functions inside an updateFn block (or when existing is true).
+ Only use standard DOM manipulation (e.g., existing.textContent = ...) when updating existing elements.
+ Binding new signals inside an update loop will cause massive memory leaks.
 
 | `existing` | Action |
 |------------|--------|
