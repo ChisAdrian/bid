@@ -111,10 +111,8 @@
     // =============================================
     function getElement(selector) {
         if (selector instanceof Element) return selector;
-
         if (typeof selector === 'string') {
             const isComplexCss = /[\s>+~.[#:]/.test(selector);
-            
             if (!isComplexCss) {
                 const bidEl = document.querySelector('[bid="' + selector + '"]');
                 if (bidEl) return bidEl;
@@ -126,7 +124,6 @@
 
             const cssEl = document.querySelector(selector);
             if (cssEl) return cssEl;
-
             throw new Error('Element "' + selector + '" not found');
         }
 
@@ -139,7 +136,6 @@
 
         if (typeof selector === 'string') {
             const isComplexCss = /[\s>+~.[#:]/.test(selector);
-            
             if (!isComplexCss) {
                 const bidEls = document.querySelectorAll('[bid="' + selector + '"]');
                 if (bidEls.length > 0) return bidEls;
@@ -148,7 +144,6 @@
             const cssEls = document.querySelectorAll(selector);
             if (cssEls.length > 0) return cssEls;
 
-            //throw new Error('Elements "' Error('Elements "' + selector + '" not found');
             throw new Error('Elements "' + selector + '" not found');
         }
 
@@ -247,7 +242,6 @@
 
     function bindCheckbox(selector, signalObj) {
         const el = getElement(selector);
-
         const update = val => el.checked = !!val;
         update(signalObj.value);
         trackBinding(el, signalObj.subscribe(update));
@@ -261,7 +255,6 @@
 
     function bindSelect(selector, signalObj) {
         const el = getElement(selector);
-
         const update = val => el.value = val;
         update(signalObj.value);
         trackBinding(el, signalObj.subscribe(update));
@@ -276,7 +269,6 @@
     function bindRadio(selector, signalObj) {
         const els = getElements(selector);
         const handler = e => { if (e.target.checked) signalObj.value = e.target.value; };
-
         els.forEach(el => {
             const update = val => el.checked = (el.value === val);
             update(signalObj.value);
@@ -287,7 +279,6 @@
             el.addEventListener('change', handler);
             trackHandler(el, 'change', handler);
         });
-
         return signalObj;
     }
 
@@ -326,7 +317,6 @@
                 scheduleEffect(recompute);
             }
         }));
-
         return {
             get value() {
                 if (isStale) recompute();
@@ -353,16 +343,17 @@
         const container = getElement(containerSelector);
         const keyFn = options.keyFn || null;
         const updateFn = options.updateFn || null;
-
+        
         // Clear previous list children before re-binding
         Array.from(container.children).forEach(child => unbindSubTree(child));
-        untrackBindings(container);
+        
+        // REMOVED: untrackBindings(container); 
+        // We no longer nuke the bindings on the container itself so we don't break bindClass!
 
         function update(arr) {
             const existing = Array.from(container.children);
             const newKeys = arr.map((item, i) => keyFn ? keyFn(item, i) : i);
             const elMap = new Map();
-
             existing.forEach(el => elMap.set(el._bidKey, el));
 
             const newKeySet = new Set(newKeys);
@@ -372,7 +363,6 @@
                     el.remove();
                 }
             });
-
             arr.forEach((item, index) => {
                 const key = newKeys[index];
                 let el = elMap.get(key);
@@ -425,7 +415,6 @@
         ['bindDragEnter', 'dragenter'], ['bindDragLeave', 'dragleave'], ['bindDragOver', 'dragover'],
         ['bindDrop', 'drop']
     ];
-
     // =============================================
     // BID API
     // =============================================
@@ -452,11 +441,11 @@
         unbind: unbind,
         unbindAll: unbindAll
     };
-
+    
     shortcuts.forEach(([name, type]) => {
         bid[name] = (selector, handler) => bindEvent(selector, type, handler);
     });
-
+    
     bid.bindTouchStart = (sel, h) => bindEvent(sel, 'touchstart', h, { passive: true });
     bid.bindTouchEnd = (sel, h) => bindEvent(sel, 'touchend', h, { passive: true });
     bid.bindTouchMove = (sel, h) => bindEvent(sel, 'touchmove', h, { passive: true });
@@ -466,11 +455,10 @@
     bid.bindScroll = h => { window.addEventListener('scroll', h); return window; };
     bid.bindLoad = h => { window.addEventListener('load', h); return window; };
     bid.bindDOMContentLoaded = h => { document.addEventListener('DOMContentLoaded', h); return document; };
-
+    
     // =============================================
     // EXPOSE
     // =============================================
     if (typeof window !== 'undefined') window.bid = bid;
     if (typeof module !== 'undefined' && module.exports) module.exports = bid;
-
 })(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));
