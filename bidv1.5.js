@@ -1,17 +1,3 @@
-// ============================================================
-// bid.js v1.5 — Reactive Core (extracted from virtualized table demo)
-// A tiny, explicit reactive binding library
-//
-// Features:
-// - Signals with fine-grained subscriptions
-// - Computed (derived) signals with automatic dependency tracking
-// - DOM bindings: text, class, attr, style, value, event
-// - List binding with keyed diff + windowing (virtualization)
-// - Auto-cleanup via MutationObserver
-// - Batching for performance
-// - replaceAll() for guaranteed full rebuilds (v1.4+)
-// ============================================================
-
 (function(global) {
     'use strict';
 
@@ -23,6 +9,7 @@
     const elementBindings = new WeakMap();
     const elementHandlers = new WeakMap();
 
+    // Queues up a UI update if we are batching, otherwise runs it immediately
     function scheduleEffect(sub, arg) {
         if (batchDepth > 0) {
             pendingEffects.set(sub, arg);
@@ -31,6 +18,7 @@
         }
     }
 
+    // Runs all the queued updates at once, then empties the queue
     function flushEffects() {
         batchDepth++;
         try {
@@ -44,6 +32,7 @@
         }
     }
 
+    // Remembers a cleanup function (unsubscribe) for a specific DOM element
     function trackBinding(el, unsubscribe) {
         if (!elementBindings.has(el)) {
             elementBindings.set(el, new Set());
@@ -51,6 +40,7 @@
         elementBindings.get(el).add(unsubscribe);
     }
 
+    // Runs and removes all saved cleanup functions for a given element
     function untrackBindings(el) {
         const bindings = elementBindings.get(el);
         if (bindings) {
@@ -59,6 +49,7 @@
         }
     }
 
+    // Saves event listener details so we can cleanly remove them later
     function trackHandler(el, type, handler, options) {
         if (!elementHandlers.has(el)) {
             elementHandlers.set(el, []);
@@ -66,6 +57,7 @@
         elementHandlers.get(el).push({ type, handler, options });
     }
 
+    // Removes all tracked event listeners from an element
     function purgeHandlers(el) {
         const handlers = elementHandlers.get(el);
         if (handlers) {
@@ -77,6 +69,8 @@
     // =============================================
     // CLEANUP MECHANICS
     // =============================================
+    
+    // Completely unbinds an element and all of its children to prevent memory leaks
     function unbindSubTree(el) {
         untrackBindings(el);
         purgeHandlers(el);
@@ -102,6 +96,7 @@
             });
         });
 
+        // Helper to kick off the DOM observer once the body is ready
         const startObserver = () => {
             domObserver.observe(document.body, { childList: true, subtree: true });
         };
@@ -116,6 +111,8 @@
     // =============================================
     // CORE: Signal
     // =============================================
+    
+    // Creates a reactive state container that alerts subscribers when its value changes
     function signal(initialValue) {
         let value = initialValue;
         const subscribers = new Set();
@@ -128,11 +125,13 @@
                     subscribers.forEach(sub => scheduleEffect(sub, value));
                 }
             },
+            // Adds a function to run whenever the value changes
             subscribe(fn) {
                 const sub = { fn };
                 subscribers.add(sub);
-                return () => { subscribers.delete(sub); };
+                return () => { subscribers.delete(sub); }; // Returns an unsubscribe function
             },
+            // Lets you read the value without triggering anything
             peek() { return value; }
         };
     }
@@ -140,6 +139,8 @@
     // =============================================
     // BATCHING
     // =============================================
+    
+    // Pauses UI updates while running multiple signal changes, updating all at once at the end
     function batch(fn) {
         batchDepth++;
         try {
@@ -153,6 +154,8 @@
     // =============================================
     // CORE: Element Selection
     // =============================================
+    
+    // Finds a single DOM element using a 'bid' attribute, ID, or CSS selector
     function getElement(selector) {
         if (selector instanceof Element) return selector;
         if (typeof selector === 'string') {
@@ -174,6 +177,7 @@
         throw new Error('Invalid selector: ' + selector);
     }
 
+    // Finds multiple DOM elements, similar to getElement but returns a list
     function getElements(selector) {
         if (selector instanceof NodeList) return selector;
         if (selector instanceof Element) return [selector];
@@ -194,6 +198,7 @@
         throw new Error('Invalid selector: ' + selector);
     }
 
+    // Converts unsafe text characters to HTML entities to stop XSS vulnerabilities
     function escapeHtml(str) {
         return String(str)
             .replace(/&/g, '&amp;')
@@ -206,6 +211,8 @@
     // =============================================
     // STATE BINDINGS
     // =============================================
+    
+    // Connects a signal to an element's text content (one-way)
     function bindText(selector, signalObj, format) {
         const el = getElement(selector);
         const update = val => el.textContent = format ? format(val) : val;
@@ -214,6 +221,7 @@
         return signalObj;
     }
 
+    // Connects a signal to an element's raw HTML content (Warning: Can be unsafe!)
     function bindHtml(selector, signalObj, format) {
         console.warn('bindHtml() is potentially unsafe. Use bindText() or sanitize your HTML.');
         const el = getElement(selector);
@@ -223,6 +231,7 @@
         return signalObj;
     }
 
+    // Toggles a CSS class on an element based on a signal's true/false value
     function bindClass(selector, signalObj, className, condition) {
         const el = getElement(selector);
         const update = val => el.classList.toggle(className, condition ? condition(val) : val);
@@ -231,6 +240,7 @@
         return signalObj;
     }
 
+    // Connects a signal to a specific HTML attribute (like 'href' or 'disabled')
     function bindAttr(selector, attr, signalObj, condition) {
         const el = getElement(selector);
         const update = val => {
@@ -246,6 +256,7 @@
         return signalObj;
     }
 
+    // Connects a signal directly to a JavaScript property on a DOM element object
     function bindProp(selector, prop, signalObj, condition) {
         const el = getElement(selector);
         const update = val => el[prop] = condition ? condition(val) : val;
@@ -254,6 +265,7 @@
         return signalObj;
     }
 
+    // Connects a signal to a specific inline CSS style property
     function bindStyle(selector, styleProp, signalObj, format) {
         const el = getElement(selector);
         const update = val => el.style[styleProp] = format ? format(val) : val;
@@ -265,6 +277,8 @@
     // =============================================
     // TWO-WAY BINDINGS
     // =============================================
+    
+    // Binds an input field so UI updates the signal, and the signal updates the UI
     function bindValue(selector, signalObj, eventType) {
         eventType = eventType || 'input';
         const el = getElement(selector);
@@ -280,10 +294,12 @@
         return signalObj;
     }
 
+    // Helper specific to standard text inputs
     function bindInput(selector, signalObj) {
         return bindValue(selector, signalObj, 'input');
     }
 
+    // Helper specific to checkbox inputs (uses 'checked' instead of 'value')
     function bindCheckbox(selector, signalObj) {
         const el = getElement(selector);
         const update = val => el.checked = !!val;
@@ -297,6 +313,7 @@
         return signalObj;
     }
 
+    // Helper specific to dropdown <select> menus
     function bindSelect(selector, signalObj) {
         const el = getElement(selector);
         const update = val => el.value = val;
@@ -310,6 +327,7 @@
         return signalObj;
     }
 
+    // Helper specific to a group of radio buttons
     function bindRadio(selector, signalObj) {
         const els = getElements(selector);
         const handler = e => { if (e.target.checked) signalObj.value = e.target.value; };
@@ -329,6 +347,8 @@
     // =============================================
     // EVENT BINDINGS
     // =============================================
+    
+    // Attaches a DOM event listener and tracks it so it can be cleaned up later
     function bindEvent(selector, eventType, handler, options) {
         if (options === undefined || options === null) {
             options = {};
@@ -342,11 +362,14 @@
     // =============================================
     // COMPUTED
     // =============================================
+    
+    // Creates a read-only signal that recalculates itself automatically when its dependencies change
     function computed(dependencies, computeFn) {
         let value;
         let isStale = true;
         const result = signal(undefined);
 
+        // Runs the math/logic to figure out the new value
         function recompute() {
             if (!isStale) return;
             const newValue = computeFn();
@@ -364,7 +387,7 @@
                 scheduleEffect(recomputeSub);
             }
         }));
-
+        
         return {
             get value() {
                 if (isStale) recompute();
@@ -386,11 +409,14 @@
     // =============================================
     // AUTO-KEY GENERATOR
     // =============================================
+    
+    // Creates a function that generates unique IDs for objects in an array (used for list rendering)
     function createAutoKeyGenerator() {
         const ids = new WeakMap();
         let counter = 0;
         let warnedPrimitive = false;
 
+        // Generates or fetches the unique ID for a specific list item
         return function autoKey(item, index) {
             if (item !== null && (typeof item === 'object' || typeof item === 'function')) {
                 let id = ids.get(item);
@@ -416,6 +442,8 @@
     // =============================================
     // LIST BINDING
     // =============================================
+    
+    // Connects an array signal to a DOM container, automatically rendering and updating elements
     function bindList(containerSelector, arraySignal, renderFn, options) {
         options = options || {};
         const container = getElement(containerSelector);
@@ -425,12 +453,13 @@
 
         Array.from(container.children).forEach(child => unbindSubTree(child));
 
+        // Intelligently syncs the DOM with the new array (adding/removing/moving items)
         function update(fullArr) {
             const arr = windowFn(fullArr);
             const existing = Array.from(container.children);
             const newKeys = arr.map((item, i) => keyFn(item, i));
             const elMap = new Map();
-
+            
             existing.forEach(el => {
                 if (elMap.has(el._bidKey)) {
                     console.error(
@@ -445,7 +474,7 @@
                 }
                 elMap.set(el._bidKey, el);
             });
-
+            
             const newKeySet = new Set(newKeys);
             elMap.forEach((el, key) => {
                 if (!newKeySet.has(key)) {
@@ -453,7 +482,7 @@
                     el.remove();
                 }
             });
-
+            
             arr.forEach((item, index) => {
                 const key = newKeys[index];
                 let el = elMap.get(key);
@@ -472,26 +501,28 @@
             });
         }
 
-        // v1.4+: bypass diff entirely — unbind + remove all, then render fresh
+        // Deletes everything and re-renders the list from scratch
         function replaceAll(fullArr) {
             Array.from(container.children).forEach(child => {
                 unbindSubTree(child);
                 child.remove();
             });
+            
             const arr = windowFn(fullArr !== undefined ? fullArr : arraySignal.peek());
             const frag = document.createDocumentFragment();
+            
             arr.forEach((item, index) => {
                 const el = renderFn(item, index);
                 el._bidKey = keyFn(item, index);
                 frag.appendChild(el);
             });
+            
             container.appendChild(frag);
         }
 
         update(arraySignal.value);
         const unsub = arraySignal.subscribe(update);
         trackBinding(container, unsub);
-
         const rerender = () => update(arraySignal.peek());
 
         return { signal: arraySignal, rerender, replaceAll };
@@ -500,10 +531,13 @@
     // =============================================
     // UNBIND FUNCTIONS
     // =============================================
+    
+    // Manually disconnects a specific element from the reactive system
     function unbind(selector) {
         unbindSubTree(getElement(selector));
     }
 
+    // Disconnects everything inside a container (defaults to cleaning up the whole document)
     function unbindAll(container) {
         container = container || document;
         unbindSubTree(container);
@@ -524,7 +558,7 @@
         ['bindDragEnter', 'dragenter'], ['bindDragLeave', 'dragleave'], ['bindDragOver', 'dragover'],
         ['bindDrop', 'drop']
     ];
-
+    
     // =============================================
     // BID API
     // =============================================
@@ -561,24 +595,24 @@
         unbind,
         unbindAll
     };
-
+    
     // Event shortcuts
     shortcuts.forEach(([name, type]) => {
         bid[name] = (selector, handler) => bindEvent(selector, type, handler);
     });
-
+    
     // Touch events (passive)
     bid.bindTouchStart = (sel, h) => bindEvent(sel, 'touchstart', h, { passive: true });
     bid.bindTouchEnd = (sel, h) => bindEvent(sel, 'touchend', h, { passive: true });
     bid.bindTouchMove = (sel, h) => bindEvent(sel, 'touchmove', h, { passive: true });
     bid.bindTouchCancel = (sel, h) => bindEvent(sel, 'touchcancel', h, { passive: true });
-
+    
     // Window events
     bid.bindResize = h => { window.addEventListener('resize', h); return window; };
     bid.bindScroll = h => { window.addEventListener('scroll', h); return window; };
     bid.bindLoad = h => { window.addEventListener('load', h); return window; };
     bid.bindDOMContentLoaded = h => { document.addEventListener('DOMContentLoaded', h); return document; };
-
+    
     // =============================================
     // EXPOSE
     // =============================================
