@@ -613,15 +613,7 @@
     bid.bindLoad = h => { window.addEventListener('load', h); return window; };
     bid.bindDOMContentLoaded = h => { document.addEventListener('DOMContentLoaded', h); return document; };
 
-// Adaugă asta în bid.js înainte de "if (typeof window !== 'undefined') window.bid = bid;"
-bid.__DEV__ = {
-    get batchDepth() { return batchDepth; },
-    get pendingEffectsCount() { return pendingEffects.size; },
-    get bindingsCount() { 
-        // Aproximare rapidă pentru elementBindings (WeakMap nu poate fi iterat direct)
-        return document.querySelectorAll('[bid]').length; 
-    }
-};
+
     
     // =============================================
     // EXPOSE
