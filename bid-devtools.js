@@ -1,128 +1,153 @@
-(function(window) {
+(function() {
     'use strict';
 
-    if (!window.bid) {
-        console.warn('bid-devtools.js: bid.js nu a fost găsit.');
+    if (typeof window === 'undefined' || !window.bid) {
+        console.error('bid-devtools.js: bid.js nu a fost găsit. Încarcă-l mai întâi!');
         return;
     }
 
     // =============================================
-    // STATE INTERN DEVTOOLS
+    // STATISTICI
     // =============================================
     const stats = {
         signals: 0,
         computed: 0,
+        bindings: 0,
         listeners: 0,
-        fps: 60,
-        longTasks: 0,
-        frames: 0
+        fps: 0,
+        longTasks: 0
     };
 
     // =============================================
-    // INTERCEPTĂRI (Monkey-Patching)
-    // =============================================
-    const originalSignal = bid.signal;
-    bid.signal = function(initialValue) {
-        stats.signals++;
-        return originalSignal(initialValue);
-    };
-
-    const originalComputed = bid.computed;
-    bid.computed = function(deps, fn) {
-        stats.computed++;
-        return originalComputed(deps, fn);
-    };
-
-    const originalBindEvent = bid.bindEvent;
-    bid.bindEvent = function(selector, eventType, handler, options) {
-        stats.listeners++;
-        return originalBindEvent(selector, eventType, handler, options);
-    };
-
-    // =============================================
-    // COLECTARE METRICI PERFORMANȚĂ
+    // INTERCEPTARE API (Monkey-Patching)
     // =============================================
     
-    // FPS Counter
-    let lastTime = performance.now();
-    function loop() {
-        stats.frames++;
-        const now = performance.now();
-        if (now - lastTime >= 1000) {
-            stats.fps = stats.frames;
-            stats.frames = 0;
-            lastTime = now;
-        }
-        requestAnimationFrame(loop);
-    }
-    loop();
+    // Urmărim semnalele
+    const originalSignal = bid.signal;
+    bid.signal = function() {
+        stats.signals++;
+        return originalSignal.apply(this, arguments);
+    };
 
-    // Long Tasks (necesită PerformanceObserver)
+    // Urmărim computeds
+    const originalComputed = bid.computed;
+    bid.computed = function() {
+        stats.computed++;
+        return originalComputed.apply(this, arguments);
+    };
+
+    // Urmărim toate binding-urile DOM (text, html, class, prop, list etc.)
+    const bindingMethods = [
+        'bindText', 'bindHtml', 'bindClass', 'bindAttr', 
+        'bindProp', 'bindStyle', 'bindValue', 'bindList'
+    ];
+    bindingMethods.forEach(method => {
+        if (bid[method]) {
+            const originalMethod = bid[method];
+            bid[method] = function() {
+                stats.bindings++;
+                return originalMethod.apply(this, arguments);
+            };
+        }
+    });
+
+    // Urmărim event listener-ele (majoritatea scurtăturilor folosesc bindEvent intern)
+    const originalBindEvent = bid.bindEvent;
+    bid.bindEvent = function() {
+        stats.listeners++;
+        return originalBindEvent.apply(this, arguments);
+    };
+
+    // =============================================
+    // MONITORIZARE PERFORMANȚĂ (FPS & Long Tasks)
+    // =============================================
+    
+    // FPS Monitor
+    let frameCount = 0;
+    let lastFpsTime = performance.now();
+    function fpsLoop() {
+        frameCount++;
+        const now = performance.now();
+        if (now - lastFpsTime >= 1000) {
+            stats.fps = Math.round((frameCount * 1000) / (now - lastFpsTime));
+            frameCount = 0;
+            lastFpsTime = now;
+        }
+        requestAnimationFrame(fpsLoop);
+    }
+    requestAnimationFrame(fpsLoop);
+
+    // Long Tasks Monitor (blocaje pe main thread > 50ms)
     if ('PerformanceObserver' in window) {
         try {
             const observer = new PerformanceObserver((list) => {
                 stats.longTasks += list.getEntries().length;
             });
-            observer.observe({ type: 'longtask', buffered: true });
+            observer.observe({ entryTypes: ['longtask'] });
         } catch (e) {
-            // Browserul nu suportă longtask
+            // Fallback silențios dacă browserul nu suportă 'longtask'
         }
     }
 
-    // Memorie Heap (suportat doar în browsere bazate pe Chromium)
-    function getHeapMB() {
-        if (performance.memory && performance.memory.usedJSHeapSize) {
-            return (performance.memory.usedJSHeapSize / (1024 * 1024)).toFixed(1) + ' MB';
-        }
-        return 'N/A';
-    }
-
     // =============================================
-    // INTERFAȚA UI (HUD)
+    // INTERFAȚĂ (UI)
     // =============================================
-    const hud = document.createElement('div');
-    hud.style.cssText = `
-        position: fixed;
-        bottom: 10px;
-        right: 10px;
-        background: #1e1e1e;
-        color: #4af626;
-        font-family: monospace;
-        font-size: 13px;
-        padding: 15px;
-        border-radius: 6px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        z-index: 999999;
-        pointer-events: none;
-        white-space: pre;
-        line-height: 1.4;
-        opacity: 0.9;
-    `;
     
-    document.addEventListener('DOMContentLoaded', () => {
-        document.body.appendChild(hud);
+    const panel = document.createElement('div');
+    Object.assign(panel.style, {
+        position: 'fixed',
+        bottom: '10px',
+        right: '10px',
+        backgroundColor: 'rgba(20, 20, 20, 0.95)',
+        color: '#00ffcc',
+        fontFamily: 'monospace, "Courier New"',
+        fontSize: '13px',
+        padding: '12px 16px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+        zIndex: '999999',
+        pointerEvents: 'none', // Să poți da click prin el
+        lineHeight: '1.4',
+        whiteSpace: 'pre'
     });
+    
+    // Asigură-te că panoul e adăugat după ce DOM-ul e gata
+    if (document.body) document.body.appendChild(panel);
+    else document.addEventListener('DOMContentLoaded', () => document.body.appendChild(panel));
 
-    // Actualizare UI o dată pe secundă
-    setInterval(() => {
-        const domNodes = document.querySelectorAll('*').length;
-        const batchDepth = bid.__DEV__ ? bid.__DEV__.batchDepth : '?';
-        const pending = bid.__DEV__ ? bid.__DEV__.pendingEffectsCount : '?';
-        const bindings = bid.__DEV__ ? bid.__DEV__.bindingsCount : '?';
+    function padRight(str, length) {
+        return (str + ' ....................').slice(0, length);
+    }
 
-        hud.textContent = `bid.js DevTools
-──────────────────────
-Signals ........ ${stats.signals}
-Computed ....... ${stats.computed}
-Bindings ....... ${bindings}
-Listeners ...... ${stats.listeners}
-Pending Effects. ${pending}
-Batch Depth .... ${batchDepth}
+    function renderDevTools() {
+        // Obținem nodurile DOM active
+        const domNodes = document.getElementsByTagName('*').length;
+        
+        // Obținem memoria Heap (suportat doar de derivatele Chromium/Chrome)
+        let heapStr = 'N/A';
+        if (performance.memory && performance.memory.usedJSHeapSize) {
+            heapStr = (performance.memory.usedJSHeapSize / (1024 * 1024)).toFixed(1) + ' MB';
+        }
 
-Heap ........... ${getHeapMB()}
-DOM Nodes ...... ${domNodes}
-FPS ............ ${stats.fps}
-Long Tasks ..... ${stats.longTasks}`;
-    }, 1000);
+        // Citim datele interne dacă le-ai expus (vezi Pasul 2 mai jos)
+        const batchDepth = bid.__core ? bid.__core.getBatchDepth() : 'Secret';
+        const pendingEff = bid.__core ? bid.__core.getPendingEffects() : 'Secret';
 
-})(window);
+        panel.textContent = 
+            "bid.js DevTools\n" +
+            "──────────────────────\n" +
+            padRight("Signals ", 16) + stats.signals + "\n" +
+            padRight("Computed ", 16) + stats.computed + "\n" +
+            padRight("Bindings ", 16) + stats.bindings + "\n" +
+            padRight("Listeners ", 16) + stats.listeners + "\n" +
+            padRight("Pending Effects ", 16) + pendingEff + "\n" +
+            padRight("Batch Depth ", 16) + batchDepth + "\n\n" +
+            padRight("Heap ", 16) + heapStr + "\n" +
+            padRight("DOM Nodes ", 16) + domNodes + "\n" +
+            padRight("FPS ", 16) + stats.fps + "\n" +
+            padRight("Long Tasks ", 16) + stats.longTasks;
+    }
+
+    // Actualizăm interfața o dată pe secundă pentru a nu consuma resurse inutile
+    setInterval(renderDevTools, 1000);
+})();
