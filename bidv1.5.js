@@ -621,20 +621,6 @@
     bid.bindLoad = h => { window.addEventListener('load', h); return window; };
     bid.bindDOMContentLoaded = h => { document.addEventListener('DOMContentLoaded', h); return document; };
 
-    // (Fragment din bid.js)
-    const bid = {
-        signal,
-        batch,
-        // ... restul funcțiilor tale ...
-        unbindAll,
-        
-        // ADAUGĂ ACESTE LINII PENTRU DEVTOOLS:
-        __core: {
-            getBatchDepth: () => batchDepth,
-            getPendingEffects: () => pendingEffects.size
-        }
-    };
-
     
     // =============================================
     // EXPOSE
