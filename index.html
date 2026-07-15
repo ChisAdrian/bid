@@ -422,6 +422,230 @@
             margin-top: 16px;
         }
     </style>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f1f5f9;
+            padding: 30px 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .stats span {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 0;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: #e2e8f0;
+            color: #0f172a;
+            transition: background 0.15s;
+        }
+
+        .btn:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #16a34a;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .table-wrap {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .table-scroll {
+            height: 500px;
+            overflow: auto;
+            position: relative;
+        }
+
+        .table-header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .table-header th {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            background: #f8fafc;
+        }
+
+        .table-header th:hover {
+            background: #f1f5f9;
+        }
+
+        .table-header th.sort-asc::after {
+            content: " ↑";
+        }
+
+        .table-header th.sort-desc::after {
+            content: " ↓";
+        }
+
+        .scroll-content {
+            position: relative;
+        }
+
+        .table-body {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .table-body tr {
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .table-body tr:hover {
+            background: #f8fafc;
+        }
+
+        .table-body td {
+            padding: 6px 12px;
+            font-size: 13px;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            height: 32px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .score-high {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .score-low {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .progress-track {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            width: 60px;
+            display: inline-block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #2563eb;
+            border-radius: 3px;
+            transition: width 0.2s;
+        }
+    </style>
 </head>
 
 <body>
@@ -575,10 +799,366 @@
         <div id="widget-box" style="margin-top:0.75rem;"></div>
     </div>
 
-    <!--
-    <script src="./bid.js"></script>-->
+
+    <!-- 8. CLEANUP -->
+    <div class="card">
+        <h2>9. Virtualized Table</h2>
+
+        <div class="header">
+            <h1>📊 Virtualized Table</h1>
+            <div class="stats">
+                Rows: <span id="statTotal">0</span>
+                Visible: <span id="statVisible">0</span>
+                DOM: <span id="statDom">0</span>
+                Scroll: <span id="statScroll">0</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="btnLoad">Load 100K</button>
+            <button class="btn btn-success" id="btnUpdate">Update Random</button>
+            <button class="btn" id="btnScrollTo">Jump to #50000</button>
+            <button class="btn" id="btnSort">Sort by Name</button>
+            <button class="btn btn-danger" id="btnReplace">Replace All</button>
+        </div>
+
+        <div class="table-wrap">
+            <div class="table-scroll" id="tableScroll">
+                <table class="table-header" id="tableHeader">
+                    <colgroup>
+                        <col style="width:70px" />
+                        <col style="width:160px" />
+                        <col style="width:220px" />
+                        <col style="width:100px" />
+                        <col style="width:80px" />
+                        <col style="width:80px" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th data-col="id">ID</th>
+                            <th data-col="name">Name</th>
+                            <th data-col="email">Email</th>
+                            <th data-col="status">Status</th>
+                            <th data-col="score">Score</th>
+                            <th data-col="progress">Progress</th>
+                        </tr>
+                    </thead>
+                </table>
+
+                <div class="scroll-content" id="scrollContent">
+                    <table class="table-body" id="tableBody">
+                        <colgroup>
+                            <col style="width:70px" />
+                            <col style="width:160px" />
+                            <col style="width:220px" />
+                            <col style="width:100px" />
+                            <col style="width:80px" />
+                            <col style="width:80px" />
+                        </colgroup>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
     <script src="./bidv1.5.js"></script>
+    <script>
+        // ============================================================
+        // VIRTUALIZED TABLE — FIXED CIRCULAR DEPENDENCY
+        // ============================================================
+
+        const ROW_HEIGHT = 32;
+        const OVERSCAN = 5;
+        const TOTAL_ROWS = 100000;
+
+        // ---------- data generators ----------
+        const statuses = ['Active', 'Inactive', 'Pending'];
+        const firstNames = ['Alice', 'Bob', 'Charlie', 'Diana', 'Evan', 'Fiona', 'George', 'Hannah', 'Ian', 'Julia'];
+        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+
+        function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        function generateRow(id) {
+            const name = rand(firstNames) + ' ' + rand(lastNames);
+            const status = rand(statuses);
+            const score = randInt(0, 100);
+            return {
+                id,
+                name,
+                email: name.toLowerCase().replace(/\s+/g, '.') + '@company.com',
+                status,
+                score,
+                progress: randInt(0, 100),
+                _s: {
+                    id: bid.signal(id),
+                    name: bid.signal(name),
+                    email: bid.signal(name.toLowerCase().replace(/\s+/g, '.') + '@company.com'),
+                    status: bid.signal(status),
+                    score: bid.signal(score),
+                    progress: bid.signal(randInt(0, 100))
+                }
+            };
+        }
+
+        function generateData(count) {
+            const data = [];
+            for (let i = 0; i < count; i++) {
+                data.push(generateRow(i + 1));
+            }
+            return data;
+        }
+
+        // ---------- state ----------
+        let allData = [];
+        const rows = bid.signal([]);
+        const scrollTop = bid.signal(0);
+        const containerHeight = bid.signal(500);
+        const sortCol = bid.signal(null);
+        const sortAsc = bid.signal(true);
+
+        // ---------- FIX: Separate computed for sorted data ----------
+        const sortedData = bid.computed([rows, sortCol, sortAsc], () => {
+            let data = rows.value || [];
+            const col = sortCol.value;
+            if (!col || data.length === 0) return data;
+            const asc = sortAsc.value ? 1 : -1;
+            return [...data].sort((a, b) => {
+                const av = a[col], bv = b[col];
+                if (typeof av === 'string') return av.localeCompare(bv) * asc;
+                return (av - bv) * asc;
+            });
+        });
+
+        // ---------- FIX: visible window uses raw values, not computed ----------
+        // This avoids the circular dependency
+        function getVisibleWindow() {
+            const totalRows = rows.value.length || 0;  // Use raw rows, not sortedData
+            if (totalRows === 0) return { start: 0, end: 0 };
+
+            const start = Math.max(0, Math.floor(scrollTop.value / ROW_HEIGHT) - OVERSCAN);
+            const visibleCount = Math.ceil(containerHeight.value / ROW_HEIGHT);
+            const end = Math.min(totalRows, start + visibleCount + OVERSCAN * 2);
+            return { start, end };
+        }
+
+        // Create a signal that updates when dependencies change
+        const visibleWindow = bid.computed([scrollTop, containerHeight, rows], getVisibleWindow);
+
+        // ---------- window function for bindList ----------
+        // FIX: Don't use visibleWindow.value here - it creates circular dependency
+        // Instead, use the raw computed value directly
+        function windowFn(arr) {
+            const { start, end } = visibleWindow.value;
+            return arr.slice(start, Math.min(arr.length, end));
+        }
+
+        // ---------- render row ----------
+        function renderRow(row, index) {
+            const tr = document.createElement('tr');
+            tr.style.height = ROW_HEIGHT + 'px';
+
+            const tdId = document.createElement('td');
+            bid.bindText(tdId, row._s.id);
+            tr.appendChild(tdId);
+
+            const tdName = document.createElement('td');
+            bid.bindText(tdName, row._s.name);
+            tr.appendChild(tdName);
+
+            const tdEmail = document.createElement('td');
+            bid.bindText(tdEmail, row._s.email);
+            tr.appendChild(tdEmail);
+
+            const tdStatus = document.createElement('td');
+            const badge = document.createElement('span');
+            badge.className = 'status-badge';
+            bid.bindText(badge, row._s.status);
+            bid.bindClass(badge, row._s.status, 'status-active', v => v === 'Active');
+            bid.bindClass(badge, row._s.status, 'status-inactive', v => v === 'Inactive');
+            bid.bindClass(badge, row._s.status, 'status-pending', v => v === 'Pending');
+            tdStatus.appendChild(badge);
+            tr.appendChild(tdStatus);
+
+            const tdScore = document.createElement('td');
+            bid.bindText(tdScore, row._s.score);
+            bid.bindClass(tdScore, row._s.score, 'score-high', v => v >= 80);
+            bid.bindClass(tdScore, row._s.score, 'score-low', v => v <= 30);
+            tr.appendChild(tdScore);
+
+            const tdProgress = document.createElement('td');
+            const track = document.createElement('span');
+            track.className = 'progress-track';
+            const fill = document.createElement('span');
+            fill.className = 'progress-fill';
+            bid.bindStyle(fill, 'width', row._s.progress, v => v + '%');
+            track.appendChild(fill);
+            tdProgress.appendChild(track);
+            tr.appendChild(tdProgress);
+
+            return tr;
+        }
+
+        // ---------- DOM refs ----------
+        const container = document.getElementById('tableScroll');
+        const scrollContent = document.getElementById('scrollContent');
+        const tbody = document.querySelector('#tableBody tbody');
+
+        // ---------- FIX: Direct height update ----------
+        function updateScrollHeight() {
+            const totalRows = rows.value.length || 0;  // Use raw rows
+            const totalHeight = totalRows * ROW_HEIGHT;
+            scrollContent.style.height = totalHeight + 'px';
+        }
+
+        // ---------- FIX: Direct position update ----------
+        function updateTablePosition() {
+            const { start } = getVisibleWindow();  // Use function directly
+            tbody.style.transform = `translateY(${start * ROW_HEIGHT}px)`;
+        }
+
+        // ---------- FIX: bind the virtualized list with proper dependencies ----------
+        // Create the list binding
+        const tableList = bid.bindList('#tableBody tbody', sortedData, renderRow, { windowFn });
+
+        // ---------- FIX: Manual subscriptions to avoid circular deps ----------
+        // Subscribe to row changes for height
+        let previousRows = [];
+        rows.subscribe(() => {
+            updateScrollHeight();
+            // Also trigger rerender when rows change
+            tableList.rerender();
+        });
+
+        // Subscribe to scroll changes for position and rerender
+        let rafId = null;
+        scrollTop.subscribe(() => {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(() => {
+                updateTablePosition();
+                tableList.rerender();
+                rafId = null;
+            });
+        });
+
+        // Subscribe to container height changes
+        containerHeight.subscribe(() => {
+            updateTablePosition();
+            tableList.rerender();
+        });
+
+        // ---------- scroll event handler ----------
+        bid.bindEvent(container, 'scroll', () => {
+            scrollTop.value = container.scrollTop;
+        }, { passive: true });
+
+        // ---------- resize observer ----------
+        if (typeof ResizeObserver !== 'undefined') {
+            const ro = new ResizeObserver(entries => {
+                for (const entry of entries) {
+                    containerHeight.value = entry.contentRect.height;
+                }
+            });
+            ro.observe(container);
+        }
+
+        // ---------- FIX: stats use raw values ----------
+        const stats = bid.computed([scrollTop, rows, visibleWindow], () => {
+            const total = rows.value.length || 0;
+            const { start, end } = visibleWindow.value;
+            return {
+                total: total,
+                visible: Math.max(0, Math.min(end, total) - start),
+                dom: Math.max(0, Math.min(end - start, total)),
+                scroll: total > 0 ? Math.floor(scrollTop.value / ROW_HEIGHT) : 0
+            };
+        });
+
+        bid.bindText('#statTotal', stats, v => (v?.total || 0).toLocaleString());
+        bid.bindText('#statVisible', stats, v => v?.visible || 0);
+        bid.bindText('#statDom', stats, v => v?.dom || 0);
+        bid.bindText('#statScroll', stats, v => (v?.scroll || 0).toLocaleString());
+
+        // ---------- column sorting ----------
+        document.querySelectorAll('#tableHeader th').forEach(th => {
+            bid.bindEvent(th, 'click', () => {
+                const col = th.dataset.col;
+                if (sortCol.value === col) {
+                    sortAsc.value = !sortAsc.value;
+                } else {
+                    sortCol.value = col;
+                    sortAsc.value = true;
+                }
+                document.querySelectorAll('#tableHeader th').forEach(t => {
+                    t.classList.remove('sort-asc', 'sort-desc');
+                });
+                th.classList.add(sortAsc.value ? 'sort-asc' : 'sort-desc');
+            });
+        });
+
+        // ---------- button handlers ----------
+        bid.bindClick('#btnLoad', () => {
+            const start = performance.now();
+            allData = generateData(TOTAL_ROWS);
+            rows.value = allData;
+            updateScrollHeight();
+            console.log('✅ Loaded', TOTAL_ROWS, 'rows in', (performance.now() - start).toFixed(1), 'ms');
+        });
+
+        bid.bindClick('#btnUpdate', () => {
+            if (allData.length === 0) {
+                console.warn('⚠️ No data loaded');
+                return;
+            }
+            const idx = randInt(0, allData.length - 1);
+            const row = allData[idx];
+            const newScore = randInt(0, 100);
+            row.score = newScore;
+            row._s.score.value = newScore;
+            console.log('🔄 Updated row', row.id, 'score →', newScore);
+        });
+
+        bid.bindClick('#btnScrollTo', () => {
+            if (allData.length === 0) {
+                console.warn('⚠️ No data loaded');
+                return;
+            }
+            const targetRow = Math.min(49999, allData.length - 1);
+            container.scrollTo({ top: targetRow * ROW_HEIGHT, behavior: 'smooth' });
+        });
+
+        bid.bindClick('#btnSort', () => {
+            if (allData.length === 0) {
+                console.warn('⚠️ No data loaded');
+                return;
+            }
+            sortCol.value = 'name';
+            sortAsc.value = true;
+            document.querySelectorAll('#tableHeader th').forEach(t => t.classList.remove('sort-asc', 'sort-desc'));
+            document.querySelector('#tableHeader [data-col="name"]').classList.add('sort-asc');
+        });
+
+        bid.bindClick('#btnReplace', () => {
+            if (allData.length === 0) {
+                console.warn('⚠️ No data loaded');
+                return;
+            }
+            const shuffled = [...allData].sort(() => Math.random() - 0.5);
+            rows.value = shuffled;
+            updateScrollHeight();
+            console.log('🔄 Replaced all rows (shuffled)');
+        });
+
+        // ---------- initial load ----------
+        setTimeout(() => {
+            document.getElementById('btnLoad').click();
+        }, 100);
+
+        console.log('✅ Virtualized table ready!');
+    </script>
+
     <script>
         const { signal, computed, bindText, bindValue, bindClick, bindList, bindClass, unbind, bindEvent } = bid;
 
