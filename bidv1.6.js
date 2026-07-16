@@ -181,11 +181,22 @@
     // FACTORIES (Internal helpers pentru DRY)
     // =============================================
     
-    // Generează funcții pentru One-Way Binding
+    // Pentru tiparul (selector, signalObj, arg1, arg2) -> ex: bindText, bindClass
     function createBinding(updaterFn) {
         return function(selector, signalObj, arg1, arg2) {
             const el = getElement(selector);
             const update = val => updaterFn(el, val, arg1, arg2);
+            update(signalObj.value);
+            trackBinding(el, signalObj.subscribe(update));
+            return signalObj;
+        };
+    }
+
+    // Pentru tiparul (selector, key, signalObj, arg1) -> ex: bindStyle, bindAttr, bindProp
+    function createKeyedBinding(updaterFn) {
+        return function(selector, key, signalObj, arg1) {
+            const el = getElement(selector);
+            const update = val => updaterFn(el, val, key, arg1);
             update(signalObj.value);
             trackBinding(el, signalObj.subscribe(update));
             return signalObj;
@@ -211,7 +222,7 @@
     }
 
     // =============================================
-    // STATE BINDINGS (Refactorizat prin Factory)
+    // STATE BINDINGS 
     // =============================================
     const bindText = createBinding((el, val, format) => el.textContent = format ? format(val) : val);
     
@@ -224,7 +235,7 @@
         el.classList.toggle(className, condition ? condition(val) : val);
     });
     
-    const bindAttr = createBinding((el, val, attr, condition) => {
+    const bindAttr = createKeyedBinding((el, val, attr, condition) => {
         const result = condition ? condition(val) : val;
         if (result === false || result === null || result === undefined) {
             el.removeAttribute(attr);
@@ -233,16 +244,16 @@
         }
     });
     
-    const bindProp = createBinding((el, val, prop, condition) => {
+    const bindProp = createKeyedBinding((el, val, prop, condition) => {
         el[prop] = condition ? condition(val) : val;
     });
     
-    const bindStyle = createBinding((el, val, styleProp, format) => {
+    const bindStyle = createKeyedBinding((el, val, styleProp, format) => {
         el.style[styleProp] = format ? format(val) : val;
     });
 
     // =============================================
-    // TWO-WAY BINDINGS (Refactorizat prin Factory)
+    // TWO-WAY BINDINGS 
     // =============================================
     const bindValue = createTwoWayBinding(
         (el, val) => { if (el.value !== val) el.value = val; }, 
@@ -264,7 +275,6 @@
         'change'
     );
 
-    // Radioul a rămas separat deoarece necesită mapare pe o listă de elemente
     function bindRadio(selector, signalObj) {
         const els = getElements(selector);
         const handler = e => { if (e.target.checked) signalObj.value = e.target.value; };
