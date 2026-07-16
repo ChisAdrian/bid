@@ -5,7 +5,7 @@
 A tiny, explicit reactive binding library for the DOM. No magic, no templates, no build step — just signals and functions.
 
 ```text
-~6 KB gzipped
+~2.5 KB minify, gzipped
 ```
 
 ## Philosophy
