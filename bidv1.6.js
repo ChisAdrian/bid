@@ -2,7 +2,7 @@
     'use strict';
 
     // =============================================
-    // INTERNALS & STORAGE
+    // INTERNALS & STORAGE  v1.6
     // =============================================
     let batchDepth = 0;
     const pendingEffects = new Map();
@@ -35,6 +35,10 @@
             elementBindings.set(el, new Set());
         }
         elementBindings.get(el).add(unsubscribe);
+        // New binding added — if this element was previously marked clean
+        // (e.g. explicitly unbound and then rebound), it needs to be
+        // eligible for cleanup again on its next removal.
+        el._bidCleaned = false;
     }
 
     function untrackBindings(el) {
@@ -50,6 +54,7 @@
             elementHandlers.set(el, []);
         }
         elementHandlers.get(el).push({ type, handler, options });
+        el._bidCleaned = false;
     }
 
     function purgeHandlers(el) {
@@ -60,13 +65,14 @@
         }
     }
 
-    // =============================================
-    // CLEANUP MECHANICS
-    // =============================================
     function unbindSubTree(el) {
+        if (el._bidCleaned) return;
+        el._bidCleaned = true;
         untrackBindings(el);
         purgeHandlers(el);
         el.querySelectorAll('*').forEach(child => {
+            if (child._bidCleaned) return;
+            child._bidCleaned = true;
             untrackBindings(child);
             purgeHandlers(child);
         });
@@ -141,9 +147,6 @@
             if (!isComplexCss) {
                 const bidEl = document.querySelector('[bid="' + selector + '"]');
                 if (bidEl) return bidEl;
-                const id = selector.startsWith('#') ? selector.slice(1) : selector;
-                const idEl = document.getElementById(id);
-                if (idEl) return idEl;
             }
             const cssEl = document.querySelector(selector);
             if (cssEl) return cssEl;
@@ -225,9 +228,15 @@
     // STATE BINDINGS 
     // =============================================
     const bindText = createBinding((el, val, format) => el.textContent = format ? format(val) : val);
-    
+
+    // Warn only once per element, not on every re-render — otherwise a
+    // frequently-updating bindHtml() spams the console on each change.
+    const htmlWarned = new WeakSet();
     const bindHtml = createBinding((el, val, format) => {
-        console.warn('bindHtml() is potentially unsafe. Use bindText() or sanitize your HTML.');
+        if (!htmlWarned.has(el)) {
+            console.warn('bindHtml() is potentially unsafe. Use bindText() or sanitize your HTML.');
+            htmlWarned.add(el);
+        }
         el.innerHTML = format ? format(val) : val;
     });
     
@@ -385,8 +394,12 @@
             const existing = Array.from(container.children);
             const newKeys = arr.map((item, i) => keyFn(item, i));
             const elMap = new Map();
-            
+
             existing.forEach(el => {
+                // Guard against non-bindList children (e.g. a static header
+                // row or spinner manually placed in the container): only
+                // dedupe/remove elements that actually carry a real key.
+                if (el._bidKey === undefined) return;
                 if (elMap.has(el._bidKey)) {
                     unbindSubTree(el);
                     el.remove();
