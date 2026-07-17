@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bidjs Complete Demo _v1.6</title>
+    <title>bid.js Definitive Showcase</title>
     <style>
         :root {
             --bg: #f8fafc;
@@ -22,824 +22,257 @@
 
         * {
             box-sizing: border-box;
-        }
-
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            max-width: 720px;
-            margin: 40px auto;
-            padding: 0 20px;
-            line-height: ;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .subtitle {
-            color: var(--muted);
-            font-size: 0.875rem;
-            margin-bottom: 2rem;
-        }
-
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 1.25rem;
-            margin-bottom: 1.25rem;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-
-        .card h2 {
-            font-size: 1rem;
-            margin: 0 0 0.75rem 0;
-            color: var(--accent);
-        }
-
-        input,
-        select,
-        button {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.5rem 0.75rem;
-            border-radius: var(--radius);
-            font-size: 0.875rem;
-        }
-
-        input:focus,
-        select:focus,
-        button:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-        }
-
-        select {
-            cursor: pointer;
-        }
-
-        button {
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        button:hover {
-            background: #e2e8f0;
-        }
-
-        button:active {
-            transform: scale(0.97);
-        }
-
-        button.primary {
-            background: var(--accent-dim);
-            border-color: var(--accent-dim);
-            color: #fff;
-        }
-
-        button.primary:hover {
-            background: var(--accent);
-        }
-
-        button.danger {
-            background: var(--danger);
-            border-color: var(--danger);
-            color: #fff;
-        }
-
-        button.danger:hover {
-            background: #dc2626;
-        }
-
-        button.success {
-            background: var(--success);
-            border-color: var(--success);
-            color: #fff;
-        }
-
-        button.success:hover {
-            background: #16a34a;
-        }
-
-        button.warning {
-            background: var(--warning);
-            border-color: var(--warning);
-            color: #fff;
-        }
-
-        button.warning:hover {
-            background: #d97706;
-        }
-
-        .row {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .col {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        @media (max-width: 640px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.15rem 0.5rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .badge-success {
-            background: var(--success);
-        }
-
-        .badge-info {
-            background: var(--accent);
-        }
-
-        .badge-danger {
-            background: var(--danger);
-        }
-
-        .badge-warning {
-            background: var(--warning);
-        }
-
-        .muted {
-            color: var(--muted);
-            font-size: 0.8rem;
-        }
-
-        .todo-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .todo-list li {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .todo-list li:last-child {
-            border-bottom: none;
-        }
-
-        .todo-list li.done span {
-            text-decoration: line-through;
-            opacity: 0.5;
-        }
-
-        /* Table styles */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.875rem;
-        }
-
-        th,
-        td {
-            padding: 0.5rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            color: var(--muted);
-            font-weight: 600;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        tr:hover td {
-            background: rgba(14, 165, 233, 0.05);
-        }
-
-        .table-container {
-            overflow-x: auto;
-            margin-top: 0.5rem;
-        }
-
-        /* Search dropdown styles */
-        .search-container {
-            position: relative;
-            flex: 1;
-        }
-
-        .search-container input {
-            width: 100%;
-            padding-right: 2rem;
-        }
-
-        .search-container .clear-btn {
-            position: absolute;
-            right: 0.5rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--muted);
-            padding: 0;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .search-container .clear-btn:hover {
-            color: var(--text);
-        }
-
-        .dropdown-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            max-height: 200px;
-            overflow-y: auto;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            margin-top: 0.25rem;
-            padding: 0.25rem;
-            display: none;
-            z-index: 9999;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .dropdown-list.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            padding: 0.5rem;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.15s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .dropdown-item:hover {
-            background: var(--bg);
-        }
-
-        .dropdown-item.selected {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .dropdown-item .sub-text {
-            color: var(--muted);
-            font-size: 0.75rem;
-        }
-
-        .flex-1 {
-            flex: 1;
-        }
-
-        .mt-1 {
-            margin-top: 0.5rem;
-        }
-
-        .selected-value {
-            background: var(--bg);
-            padding: 0.25rem 0.5rem;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            display: inline-block;
-        }
-
-        .preview-box {
-            background: var(--bg);
-            padding: 0.75rem;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            min-height: 60px;
-        }
-
-        label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            padding: 0.25rem 0;
-        }
-
-        label input[type="checkbox"] {
-            width: auto;
-            cursor: pointer;
-        }
-
-        /* Modal backdrop */
-        #modal-bid {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        /* Show state */
-        #modal-bid.visible {
-            display: flex;
-        }
-
-        /* Modal content box */
-        #modal-bid>div {
-            background: white;
-            padding: 24px;
-            border-radius: 8px;
-            min-width: 300px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        #modal-bid header {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 12px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2563eb;
-        }
-
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #334155;
-        }
-
-        .btn-secondary:hover {
-            background: #cbd5e1;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-            margin-top: 16px;
-        }
-    </style>
-
-    <style>
-        * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
         body {
             font-family: system-ui, -apple-system, sans-serif;
-            background: #f1f5f9;
-            padding: 30px 20px;
-            max-width: 1000px;
+            background: var(--bg);
+            color: var(--text);
+            max-width: 900px;
             margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.5;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+        /* Typography & Layout */
+        h1 { font-size: 2rem; margin-bottom: 0.25rem; color: var(--text); }
+        h2 { font-size: 1.25rem; margin-bottom: 1rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        h3 { font-size: 0.875rem; margin-bottom: 0.5rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .subtitle { color: var(--muted); font-size: 1rem; margin-bottom: 2rem; }
+        .muted { color: var(--muted); font-size: 0.85rem; }
+        .mt-1 { margin-top: 0.75rem; }
+        .mb-1 { margin-bottom: 0.75rem; }
 
-        .header h1 {
-            font-size: 22px;
-            font-weight: 600;
-            color: #0f172a;
-        }
+        /* Grid System */
+        .card { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02); }
+        .row { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        .col { display: flex; flex-direction: column; gap: 0.5rem; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
 
-        .stats {
-            display: flex;
-            gap: 20px;
-            font-size: 13px;
-            color: #475569;
-        }
+        /* Form Elements */
+        input:not([type="radio"]):not([type="checkbox"]), select, textarea, button { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 0.75rem; border-radius: var(--radius); font-size: 0.875rem; font-family: inherit; }
+        input:focus, select:focus, textarea:focus, button:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); }
+        select, button, label { cursor: pointer; }
+        label { display: inline-flex; align-items: center; gap: 0.5rem; }
+        
+        button { transition: all 0.15s; font-weight: 500; }
+        button:hover { background: #f1f5f9; }
+        button:active { transform: scale(0.97); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+        button.primary:hover { background: var(--accent-dim); }
+        button.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+        button.danger:hover { background: #dc2626; }
+        button.success { background: var(--success); border-color: var(--success); color: #fff; }
+        button.success:hover { background: #16a34a; }
 
-        .stats span {
-            font-weight: 600;
-            color: #0f172a;
-        }
+        /* Badges & Status */
+        .badge { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; background: var(--bg); border: 1px solid var(--border); color: var(--text); }
+        .badge-success { background: #dcfce7; color: #166534; border-color: #dcfce7; }
+        .badge-danger { background: #fee2e2; color: #991b1b; border-color: #fee2e2; }
+        .preview-box { background: var(--bg); padding: 1rem; border-radius: var(--radius); border: 1px dashed var(--border); min-height: 60px; word-wrap: break-word; }
 
-        .controls {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-        }
+        /* Lists */
+        .todo-list { list-style: none; }
+        .todo-list li { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+        .todo-list li:last-child { border-bottom: none; }
+        .todo-list li.done span { text-decoration: line-through; opacity: 0.5; }
 
-        .btn {
-            padding: 8px 16px;
-            border: 0;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            background: #e2e8f0;
-            color: #0f172a;
-            transition: background 0.15s;
-        }
+        /* Dropdowns */
+        .search-container { position: relative; flex: 1; }
+        .search-container input { width: 100%; padding-right: 2rem; }
+        .clear-btn { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); padding: 0; font-size: 1.2rem; cursor: pointer; }
+        .clear-btn:hover { color: var(--text); background: transparent; }
+        .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-top: 0.25rem; padding: 0.25rem; display: none; z-index: 50; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .dropdown-list.show { display: block; }
+        .dropdown-item { padding: 0.5rem 0.75rem; cursor: pointer; border-radius: 4px; transition: background 0.15s; }
+        .dropdown-item:hover { background: var(--bg); }
 
-        .btn:hover {
-            background: #cbd5e1;
-        }
+        /* Modal */
+        #modal-bid { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
+        #modal-bid.visible { display: flex; }
+        .modal-content { background: white; padding: 1.5rem; border-radius: var(--radius); min-width: 320px; max-width: 90%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .modal-content header { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem; }
 
-        .btn-primary {
-            background: #2563eb;
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-
-        .btn-success {
-            background: #22c55e;
-            color: #fff;
-        }
-
-        .btn-success:hover {
-            background: #16a34a;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: #fff;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .table-wrap {
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .table-scroll {
-            height: 500px;
-            overflow: auto;
-            position: relative;
-        }
-
-        .table-header {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            background: #f8fafc;
-            border-bottom: 2px solid #e2e8f0;
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        .table-header th {
-            padding: 10px 12px;
-            text-align: left;
-            font-size: 11px;
-            font-weight: 600;
-            color: #475569;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            cursor: pointer;
-            user-select: none;
-            white-space: nowrap;
-            background: #f8fafc;
-        }
-
-        .table-header th:hover {
-            background: #f1f5f9;
-        }
-
-        .table-header th.sort-asc::after {
-            content: " ↑";
-        }
-
-        .table-header th.sort-desc::after {
-            content: " ↓";
-        }
-
-        .scroll-content {
-            position: relative;
-        }
-
-        .table-body {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .table-body tr {
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .table-body tr:hover {
-            background: #f8fafc;
-        }
-
-        .table-body td {
-            padding: 6px 12px;
-            font-size: 13px;
-            color: #0f172a;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            height: 32px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .status-active {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .status-inactive {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .score-high {
-            color: #16a34a;
-            font-weight: 600;
-        }
-
-        .score-low {
-            color: #dc2626;
-            font-weight: 600;
-        }
-
-        .progress-track {
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 3px;
-            overflow: hidden;
-            width: 60px;
-            display: inline-block;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #2563eb;
-            border-radius: 3px;
-            transition: width 0.2s;
-        }
+        /* Virtualized Table */
+        .table-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+        .table-scroll { height: 400px; overflow: auto; position: relative; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .table-header { position: sticky; top: 0; z-index: 20; background: var(--bg); border-bottom: 2px solid var(--border); }
+        th { padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; cursor: pointer; user-select: none; }
+        th:hover { background: #e2e8f0; }
+        th.sort-asc::after { content: " ↑"; }
+        th.sort-desc::after { content: " ↓"; }
+        .table-body { width: 100%; position: absolute; top: 0; left: 0; }
+        td { padding: 0.5rem 1rem; font-size: 0.875rem; border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: 36px; }
+        tr:hover td { background: var(--bg); }
+        .progress-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; width: 100%; display: block; }
+        .progress-fill { height: 100%; background: var(--accent); transition: width 0.2s; display: block; }
     </style>
 </head>
 
 <body>
 
-    <h1>bidv.js</h1>
-    <p class="subtitle">Complete demo covering all library features</p>
+    <h1>bid.js Showcase</h1>
+    <p class="subtitle">A definitive guide to the library's reactive capabilities.</p>
 
-    <!-- 1. COUNTER -->
+    <!-- 1. BASICS: STATE & COMPUTED -->
     <div class="card">
-        <h2>1. Counter</h2>
-        <div class="row">
-            <button bid="dec">−</button>
-            <span bid="count" class="badge" style="font-size:1rem; padding:0.35rem 1rem;">0</span>
-            <button bid="inc" class="primary">+</button>
-        </div>
-        <p class="muted">Clicks: <span bid="clicks">0</span> | Doubled: <span bid="doubled">0</span></p>
-    </div>
-
-    <!-- 2. COMPUTED -->
-    <div class="card">
-        <h2>2. Computed</h2>
-        <div class="row">
-            <input bid="first" placeholder="First name" style="flex:1">
-            <input bid="last" placeholder="Last name" style="flex:1">
-        </div>
-        <p class="muted">Full name: <strong bid="fullname">... ...</strong></p>
-    </div>
-
-    <!-- 3. TODO LIST -->
-    <div class="card">
-        <h2>3. Todo List (Keyed)</h2>
-        <div class="row">
-            <input bid="todo-input" placeholder="New task..." style="flex:1">
-            <button bid="add-btn" class="primary">Add</button>
-        </div>
-        <ul bid="todo-list" class="todo-list"></ul>
-    </div>
-
-    <!-- 4. NESTED SIGNALS & DEEP REACTIVITY -->
-    <div class="card">
-        <h2>4. Nested Signals & Deep Reactivity</h2>
+        <h2>1. State & Computed Properties</h2>
         <div class="grid-2">
             <div class="col">
-                <h3 class="muted">User Profile</h3>
-                <input bid="user-name" placeholder="Name" value="John Doe">
-                <input bid="user-email" placeholder="Email" value="john@example.com">
-                <select bid="user-role">
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                    <option value="moderator">Moderator</option>
-                </select>
-                <label>
-                    <input type="checkbox" bid="user-active" checked>
-                    <span>Active</span>
-                </label>
-                <button bid="reset-user" class="warning">Reset Profile</button>
+                <h3>Simple Counter</h3>
+                <div class="row">
+                    <button bid="dec" class="danger">−</button>
+                    <span bid="count" class="badge" style="font-size:1.25rem; padding:0.25rem 1.5rem;">0</span>
+                    <button bid="inc" class="success">+</button>
+                </div>
+                <p class="muted mt-1">Clicks: <span bid="clicks">0</span> | Doubled: <span bid="doubled">0</span></p>
             </div>
             <div class="col">
-                <h3 class="muted">Profile Preview</h3>
+                <h3>Computed Strings</h3>
+                <div class="row">
+                    <input bid="first" placeholder="First name" style="flex:1">
+                    <input bid="last" placeholder="Last name" style="flex:1">
+                </div>
+                <div class="preview-box mt-1" style="min-height: auto;">
+                    <strong>Full Name:</strong> <span bid="fullname">... ...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. FORM BINDINGS & VALIDATION -->
+    <div class="card">
+        <h2>2. Form Bindings & Validation</h2>
+        <div class="grid-2">
+            <div class="col">
+                <h3>Two-Way Bindings</h3>
+                <label>
+                    <input type="checkbox" bid="agree-check"> 
+                    I agree to the terms
+                </label>
+                <select bid="color-select" style="margin: 0.5rem 0;">
+                    <option value="var(--text)">Default</option>
+                    <option value="var(--accent)">Blue</option>
+                    <option value="var(--danger)">Red</option>
+                    <option value="var(--success)">Green</option>
+                </select>
+                <div class="row mb-1">
+                    <label><input type="radio" bid="theme-radio" value="Light" name="theme"> Light</label>
+                    <label><input type="radio" bid="theme-radio" value="Dark" name="theme"> Dark</label>
+                </div>
                 <div class="preview-box">
-                    <span bid="profile-preview">John Doe (john@example.com) - user - ✅ Active</span>
-                </div>
-                <div>
-                    <span bid="user-status" class="badge badge-success">🟢 Active</span>
+                    <span bid="form-output">Result output here</span>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- 5. INPUT WITH SEARCH DROPDOWN (BID WAY) -->
-    <div class="card">
-        <h2>5. Search Dropdown Input</h2>
-        <div bid="country-wrapper" class="row">
-            <div class="search-container" style="flex:1;">
-                <input bid="country-search" placeholder="Search for a country..." autocomplete="off">
-                <button bid="clear-country-search" class="clear-btn">×</button>
-                <div bid="country-dropdown" class="dropdown-list"></div>
+            <div class="col">
+                <h3>Dynamic Attributes (bindProp)</h3>
+                <input type="password" bid="pass1" placeholder="Enter Password">
+                <input type="password" bid="pass2" placeholder="Confirm Password">
+                <p bid="pass-msg" class="muted" style="min-height: 1.25rem;"></p>
+                <button bid="submit-btn" class="primary">Secure Submit</button>
             </div>
-            <button bid="select-country-btn" class="success">Select</button>
-        </div>
-        <div class="row mt-1">
-            <span class="muted">Selected:</span>
-            <span bid="selected-country" class="selected-value">None</span>
         </div>
     </div>
 
-    <!-- 6. TABLE WITH SEARCH DROPDOWN (BID WAY) -->
+    <!-- 3. LIST RENDERING & HTML -->
     <div class="card">
-        <h2>6. User Directory</h2>
-        <div bid="user-wrapper" class="row" style="margin-bottom:0.75rem;">
-            <div class="search-container">
-                <input bid="search-input" placeholder="Search users...">
-                <button bid="clear-search" class="clear-btn">×</button>
+        <h2>3. Keyed Lists & Raw HTML</h2>
+        <div class="grid-2">
+            <div class="col">
+                <h3>Todo List (bindList)</h3>
+                <div class="row mb-1">
+                    <input bid="todo-input" placeholder="New task..." style="flex:1" autocomplete="off">
+                    <button bid="add-btn" class="primary">Add</button>
+                </div>
+                <ul bid="todo-list" class="todo-list"></ul>
             </div>
-            <select bid="role-filter" style="flex:0 0 auto;">
-                <option value="all">All Roles</option>
-                <option value="developer">Developer</option>
-                <option value="designer">Designer</option>
-                <option value="manager">Manager</option>
-            </select>
-            <button bid="add-user-btn" class="success">+ Add</button>
+            <div class="col">
+                <h3>Raw HTML Injector (bindHtml)</h3>
+                <textarea bid="html-input" rows="3"><b>bid.js</b> allows <i>raw HTML</i> injection! <span style="color:var(--accent)">Check the console for the XSS warning.</span></textarea>
+                <div bid="html-output" class="preview-box mt-1"></div>
+            </div>
         </div>
-
-        <!-- Search dropdown -->
-        <div bid="user-dropdown" class="dropdown-list"></div>
-
-        <!-- Table -->
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th style="width:60px;">Action</th>
-                    </tr>
-                </thead>
-                <tbody bid="user-table"></tbody>
-            </table>
-        </div>
-        <p class="muted" style="margin-top:0.5rem;">
-            Showing <span bid="visible-count">0</span> of <span bid="total-count">0</span> users
-        </p>
     </div>
 
-    <!-- 7. MODAL -->
+    <!-- 4. COMPONENTS -->
     <div class="card">
-        <h2>7. Modal</h2>
-        <button bid="open-modal" class="btn btn-secondary">Show Modal</button>
-        <!-- Modal -->
-        <div id="modal-bid">
-            <div>
-                <header>Modal Test</header>
-                <p>This is a bid.js-powered modal. here!</p>
-                <div class="modal-actions">
-                    <button bid="close-modal" class="btn btn-secondary">Close</button>
-                    <button bid="confirm-modal" class="btn btn-primary">Confirm</button>
+        <h2>4. Interactive Components</h2>
+        <div class="grid-2">
+            <div class="col" bid="country-wrapper">
+                <h3>Search Dropdown</h3>
+                <div class="search-container">
+                    <input bid="country-search" placeholder="Search for a country..." autocomplete="off">
+                    <button bid="clear-country" class="clear-btn">×</button>
+                    <div bid="country-dropdown" class="dropdown-list"></div>
+                </div>
+                <p class="muted mt-1">Selected: <strong bid="selected-country" class="badge">None</strong></p>
+            </div>
+            <div class="col">
+                <h3>Class Binding (bindClass)</h3>
+                <button bid="open-modal" class="primary" style="align-self: flex-start;">Launch Modal</button>
+                
+                <!-- Modal Box -->
+                <div id="modal-bid">
+                    <div class="modal-content">
+                        <header>Modal Example</header>
+                        <p>This overlay's visibility is controlled natively via <code>bindClass</code> toggling a utility class based on a signal.</p>
+                        <div class="modal-actions">
+                            <button bid="close-modal">Cancel</button>
+                            <button bid="confirm-modal" class="primary">Understood</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-
-    <!-- 8. CLEANUP -->
+    <!-- 5. DOM CLEANUP -->
     <div class="card">
-        <h2>8. Cleanup</h2>
+        <h2>5. MutationObserver Cleanup</h2>
+        <p class="muted mb-1">Inspect elements to see event listeners being purged automatically upon DOM removal.</p>
         <div class="row">
-            <button bid="spawn-btn">Spawn</button>
-            <button bid="destroy-btn" class="danger">Destroy</button>
+            <button bid="spawn-btn" class="success">Spawn Widget</button>
+            <button bid="destroy-btn" class="danger">Destroy Last</button>
         </div>
-        <div id="widget-box" style="margin-top:0.75rem;"></div>
+        <div id="widget-box" class="col mt-1"></div>
     </div>
 
-
-    <!-- 8. CLEANUP -->
+    <!-- 6. PERFORMANCE -->
     <div class="card">
-        <h2>9. Virtualized Table</h2>
-
-        <div class="header">
-            <h1>📊 Virtualized Table</h1>
-            <div class="stats">
-                Rows: <span id="statTotal">0</span>
-                Visible: <span id="statVisible">0</span>
-                DOM: <span id="statDom">0</span>
-                Scroll: <span id="statScroll">0</span>
+        <div class="row" style="justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+            <h2 style="border: none; margin: 0; padding: 0;">6. Extreme Virtualization</h2>
+            <div class="muted">
+                Total: <strong bid="statTotal">0</strong> | 
+                Rendered DOM Nodes: <strong bid="statDom">0</strong>
             </div>
         </div>
-
-        <div class="controls">
-            <button class="btn btn-primary" id="btnLoad">Load 100K</button>
-            <button class="btn btn-success" id="btnUpdate">Update Random</button>
-            <button class="btn" id="btnScrollTo">Jump to #50000</button>
-            <button class="btn" id="btnSort">Sort by Name</button>
-            <button class="btn btn-danger" id="btnReplace">Replace All</button>
+        
+        <div class="row mb-1">
+            <button bid="btnLoad" class="primary">Load 100K Rows</button>
+            <button bid="btnUpdate" class="success">Update Random</button>
+            <button bid="btnSort">Sort by Name</button>
         </div>
 
         <div class="table-wrap">
             <div class="table-scroll" id="tableScroll">
-                <table class="table-header" id="tableHeader">
+                <table class="table-header">
                     <colgroup>
-                        <col style="width:70px" />
-                        <col style="width:160px" />
-                        <col style="width:220px" />
+                        <col style="width:60px" />
+                        <col style="width:200px" />
+                        <col style="width:120px" />
                         <col style="width:100px" />
-                        <col style="width:80px" />
-                        <col style="width:80px" />
                     </colgroup>
                     <thead>
                         <tr>
                             <th data-col="id">ID</th>
-                            <th data-col="name">Name</th>
-                            <th data-col="email">Email</th>
+                            <th data-col="name">Name / Email</th>
                             <th data-col="status">Status</th>
-                            <th data-col="score">Score</th>
                             <th data-col="progress">Progress</th>
                         </tr>
                     </thead>
@@ -848,321 +281,28 @@
                 <div class="scroll-content" id="scrollContent">
                     <table class="table-body" id="tableBody">
                         <colgroup>
-                            <col style="width:70px" />
-                            <col style="width:160px" />
-                            <col style="width:220px" />
+                            <col style="width:60px" />
+                            <col style="width:200px" />
+                            <col style="width:120px" />
                             <col style="width:100px" />
-                            <col style="width:80px" />
-                            <col style="width:80px" />
                         </colgroup>
                         <tbody></tbody>
                     </table>
                 </div>
             </div>
         </div>
-
     </div>
 
+    <!-- LIBRARY SCRIPT -->
     <script src="./bidv1.6.js"></script>
+    
+    <!-- DEMO LOGIC -->
     <script>
-        // ============================================================
-        // VIRTUALIZED TABLE — FIXED CIRCULAR DEPENDENCY
-        // ============================================================
+        const { signal, computed, bindText, bindValue, bindClick, bindList, bindClass, bindHtml, bindProp, bindStyle, bindRadio, bindCheckbox, bindSelect, unbind, bindEvent } = bid;
 
-        const ROW_HEIGHT = 32;
-        const OVERSCAN = 5;
-        const TOTAL_ROWS = 100000;
-
-        // ---------- data generators ----------
-        const statuses = ['Active', 'Inactive', 'Pending'];
-        const firstNames = ['Alice', 'Bob', 'Charlie', 'Diana', 'Evan', 'Fiona', 'George', 'Hannah', 'Ian', 'Julia'];
-        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
-
-        function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-
-        function generateRow(id) {
-            const name = rand(firstNames) + ' ' + rand(lastNames);
-            const status = rand(statuses);
-            const score = randInt(0, 100);
-            return {
-                id,
-                name,
-                email: name.toLowerCase().replace(/\s+/g, '.') + '@company.com',
-                status,
-                score,
-                progress: randInt(0, 100),
-                _s: {
-                    id: bid.signal(id),
-                    name: bid.signal(name),
-                    email: bid.signal(name.toLowerCase().replace(/\s+/g, '.') + '@company.com'),
-                    status: bid.signal(status),
-                    score: bid.signal(score),
-                    progress: bid.signal(randInt(0, 100))
-                }
-            };
-        }
-
-        function generateData(count) {
-            const data = [];
-            for (let i = 0; i < count; i++) {
-                data.push(generateRow(i + 1));
-            }
-            return data;
-        }
-
-        // ---------- state ----------
-        let allData = [];
-        const rows = bid.signal([]);
-        const scrollTop = bid.signal(0);
-        const containerHeight = bid.signal(500);
-        const sortCol = bid.signal(null);
-        const sortAsc = bid.signal(true);
-
-        // ---------- FIX: Separate computed for sorted data ----------
-        const sortedData = bid.computed([rows, sortCol, sortAsc], () => {
-            let data = rows.value || [];
-            const col = sortCol.value;
-            if (!col || data.length === 0) return data;
-            const asc = sortAsc.value ? 1 : -1;
-            return [...data].sort((a, b) => {
-                const av = a[col], bv = b[col];
-                if (typeof av === 'string') return av.localeCompare(bv) * asc;
-                return (av - bv) * asc;
-            });
-        });
-
-        // ---------- FIX: visible window uses raw values, not computed ----------
-        // This avoids the circular dependency
-        function getVisibleWindow() {
-            const totalRows = rows.value.length || 0;  // Use raw rows, not sortedData
-            if (totalRows === 0) return { start: 0, end: 0 };
-
-            const start = Math.max(0, Math.floor(scrollTop.value / ROW_HEIGHT) - OVERSCAN);
-            const visibleCount = Math.ceil(containerHeight.value / ROW_HEIGHT);
-            const end = Math.min(totalRows, start + visibleCount + OVERSCAN * 2);
-            return { start, end };
-        }
-
-        // Create a signal that updates when dependencies change
-        const visibleWindow = bid.computed([scrollTop, containerHeight, rows], getVisibleWindow);
-
-        // ---------- window function for bindList ----------
-        // FIX: Don't use visibleWindow.value here - it creates circular dependency
-        // Instead, use the raw computed value directly
-        function windowFn(arr) {
-            const { start, end } = visibleWindow.value;
-            return arr.slice(start, Math.min(arr.length, end));
-        }
-
-        // ---------- render row ----------
-        function renderRow(row, index) {
-            const tr = document.createElement('tr');
-            tr.style.height = ROW_HEIGHT + 'px';
-
-            const tdId = document.createElement('td');
-            bid.bindText(tdId, row._s.id);
-            tr.appendChild(tdId);
-
-            const tdName = document.createElement('td');
-            bid.bindText(tdName, row._s.name);
-            tr.appendChild(tdName);
-
-            const tdEmail = document.createElement('td');
-            bid.bindText(tdEmail, row._s.email);
-            tr.appendChild(tdEmail);
-
-            const tdStatus = document.createElement('td');
-            const badge = document.createElement('span');
-            badge.className = 'status-badge';
-            bid.bindText(badge, row._s.status);
-            bid.bindClass(badge, row._s.status, 'status-active', v => v === 'Active');
-            bid.bindClass(badge, row._s.status, 'status-inactive', v => v === 'Inactive');
-            bid.bindClass(badge, row._s.status, 'status-pending', v => v === 'Pending');
-            tdStatus.appendChild(badge);
-            tr.appendChild(tdStatus);
-
-            const tdScore = document.createElement('td');
-            bid.bindText(tdScore, row._s.score);
-            bid.bindClass(tdScore, row._s.score, 'score-high', v => v >= 80);
-            bid.bindClass(tdScore, row._s.score, 'score-low', v => v <= 30);
-            tr.appendChild(tdScore);
-
-            const tdProgress = document.createElement('td');
-            const track = document.createElement('span');
-            track.className = 'progress-track';
-            const fill = document.createElement('span');
-            fill.className = 'progress-fill';
-            bid.bindStyle(fill, 'width', row._s.progress, v => v + '%');
-            track.appendChild(fill);
-            tdProgress.appendChild(track);
-            tr.appendChild(tdProgress);
-
-            return tr;
-        }
-
-        // ---------- DOM refs ----------
-        const container = document.getElementById('tableScroll');
-        const scrollContent = document.getElementById('scrollContent');
-        const tbody = document.querySelector('#tableBody tbody');
-
-        // ---------- FIX: Direct height update ----------
-        function updateScrollHeight() {
-            const totalRows = rows.value.length || 0;  // Use raw rows
-            const totalHeight = totalRows * ROW_HEIGHT;
-            scrollContent.style.height = totalHeight + 'px';
-        }
-
-        // ---------- FIX: Direct position update ----------
-        function updateTablePosition() {
-            const { start } = getVisibleWindow();  // Use function directly
-            tbody.style.transform = `translateY(${start * ROW_HEIGHT}px)`;
-        }
-
-        // ---------- FIX: bind the virtualized list with proper dependencies ----------
-        // Create the list binding
-        const tableList = bid.bindList('#tableBody tbody', sortedData, renderRow, { windowFn });
-
-        // ---------- FIX: Manual subscriptions to avoid circular deps ----------
-        // Subscribe to row changes for height
-        let previousRows = [];
-        rows.subscribe(() => {
-            updateScrollHeight();
-            // Also trigger rerender when rows change
-            tableList.rerender();
-        });
-
-        // Subscribe to scroll changes for position and rerender
-        let rafId = null;
-        scrollTop.subscribe(() => {
-            if (rafId) cancelAnimationFrame(rafId);
-            rafId = requestAnimationFrame(() => {
-                updateTablePosition();
-                tableList.rerender();
-                rafId = null;
-            });
-        });
-
-        // Subscribe to container height changes
-        containerHeight.subscribe(() => {
-            updateTablePosition();
-            tableList.rerender();
-        });
-
-        // ---------- scroll event handler ----------
-        bid.bindEvent(container, 'scroll', () => {
-            scrollTop.value = container.scrollTop;
-        }, { passive: true });
-
-        // ---------- resize observer ----------
-        if (typeof ResizeObserver !== 'undefined') {
-            const ro = new ResizeObserver(entries => {
-                for (const entry of entries) {
-                    containerHeight.value = entry.contentRect.height;
-                }
-            });
-            ro.observe(container);
-        }
-
-        // ---------- FIX: stats use raw values ----------
-        const stats = bid.computed([scrollTop, rows, visibleWindow], () => {
-            const total = rows.value.length || 0;
-            const { start, end } = visibleWindow.value;
-            return {
-                total: total,
-                visible: Math.max(0, Math.min(end, total) - start),
-                dom: Math.max(0, Math.min(end - start, total)),
-                scroll: total > 0 ? Math.floor(scrollTop.value / ROW_HEIGHT) : 0
-            };
-        });
-
-        bid.bindText('#statTotal', stats, v => (v?.total || 0).toLocaleString());
-        bid.bindText('#statVisible', stats, v => v?.visible || 0);
-        bid.bindText('#statDom', stats, v => v?.dom || 0);
-        bid.bindText('#statScroll', stats, v => (v?.scroll || 0).toLocaleString());
-
-        // ---------- column sorting ----------
-        document.querySelectorAll('#tableHeader th').forEach(th => {
-            bid.bindEvent(th, 'click', () => {
-                const col = th.dataset.col;
-                if (sortCol.value === col) {
-                    sortAsc.value = !sortAsc.value;
-                } else {
-                    sortCol.value = col;
-                    sortAsc.value = true;
-                }
-                document.querySelectorAll('#tableHeader th').forEach(t => {
-                    t.classList.remove('sort-asc', 'sort-desc');
-                });
-                th.classList.add(sortAsc.value ? 'sort-asc' : 'sort-desc');
-            });
-        });
-
-        // ---------- button handlers ----------
-        bid.bindClick('#btnLoad', () => {
-            const start = performance.now();
-            allData = generateData(TOTAL_ROWS);
-            rows.value = allData;
-            updateScrollHeight();
-            console.log('✅ Loaded', TOTAL_ROWS, 'rows in', (performance.now() - start).toFixed(1), 'ms');
-        });
-
-        bid.bindClick('#btnUpdate', () => {
-            if (allData.length === 0) {
-                console.warn('⚠️ No data loaded');
-                return;
-            }
-            const idx = randInt(0, allData.length - 1);
-            const row = allData[idx];
-            const newScore = randInt(0, 100);
-            row.score = newScore;
-            row._s.score.value = newScore;
-            console.log('🔄 Updated row', row.id, 'score →', newScore);
-        });
-
-        bid.bindClick('#btnScrollTo', () => {
-            if (allData.length === 0) {
-                console.warn('⚠️ No data loaded');
-                return;
-            }
-            const targetRow = Math.min(49999, allData.length - 1);
-            container.scrollTo({ top: targetRow * ROW_HEIGHT, behavior: 'smooth' });
-        });
-
-        bid.bindClick('#btnSort', () => {
-            if (allData.length === 0) {
-                console.warn('⚠️ No data loaded');
-                return;
-            }
-            sortCol.value = 'name';
-            sortAsc.value = true;
-            document.querySelectorAll('#tableHeader th').forEach(t => t.classList.remove('sort-asc', 'sort-desc'));
-            document.querySelector('#tableHeader [data-col="name"]').classList.add('sort-asc');
-        });
-
-        bid.bindClick('#btnReplace', () => {
-            if (allData.length === 0) {
-                console.warn('⚠️ No data loaded');
-                return;
-            }
-            const shuffled = [...allData].sort(() => Math.random() - 0.5);
-            rows.value = shuffled;
-            updateScrollHeight();
-            console.log('🔄 Replaced all rows (shuffled)');
-        });
-
-        // ---------- initial load ----------
-        setTimeout(() => {
-            document.getElementById('btnLoad').click();
-        }, 100);
-
-        console.log('✅ Virtualized table ready!');
-    </script>
-
-    <script>
-        const { signal, computed, bindText, bindValue, bindClick, bindList, bindClass, unbind, bindEvent } = bid;
-
-        // === 1. COUNTER ===
+        // ==========================================
+        // 1. BASICS: STATE & COMPUTED
+        // ==========================================
         const count = signal(0);
         const clicks = signal(0);
         const doubled = computed([count], () => count.peek() * 2);
@@ -1174,429 +314,246 @@
         bindClick('inc', () => { count.value++; clicks.value++; });
         bindClick('dec', () => { count.value--; clicks.value++; });
 
-        // === 2. COMPUTED ===
         const firstName = signal('');
         const lastName = signal('');
-        const fullName = computed([firstName, lastName], () => {
-            const f = firstName.peek(), l = lastName.peek();
-            return (f || '...') + ' ' + (l || '...');
-        });
-
         bindValue('first', firstName);
         bindValue('last', lastName);
-        bindText('fullname', fullName);
+        bindText('fullname', computed([firstName, lastName], () => {
+            return (firstName.peek() || '...') + ' ' + (lastName.peek() || '...');
+        }));
 
-        // === 3. TODO LIST ===
+        // ==========================================
+        // 2. FORM BINDINGS & VALIDATION
+        // ==========================================
+        const terms = signal(false);
+        const textColor = signal('var(--text)');
+        const theme = signal('Light');
+
+        bindCheckbox('agree-check', terms);
+        bindSelect('color-select', textColor);
+        bindRadio('theme-radio', theme);
+
+        const formOutput = computed([terms, theme], () => `Theme: ${theme.peek()} | Agreed: ${terms.peek() ? 'Yes' : 'No'}`);
+        bindText('form-output', formOutput);
+        bindStyle('form-output', 'color', textColor);
+
+        // Validation logic
+        const pass1 = signal('');
+        const pass2 = signal('');
+        bindValue('pass1', pass1);
+        bindValue('pass2', pass2);
+
+        const isMatch = computed([pass1, pass2], () => {
+            const p1 = pass1.peek(), p2 = pass2.peek();
+            if (!p1 && !p2) return null; 
+            if (p1 !== p2) return false;
+            return p1.length >= 6; 
+        });
+
+        bindText('pass-msg', computed([isMatch], () => {
+            const m = isMatch.peek();
+            if (m === null) return 'Must be at least 6 characters.';
+            return m ? '✅ Passwords match securely!' : '❌ Passwords do not match or are too short.';
+        }));
+        bindStyle('pass-msg', 'color', isMatch, m => m ? 'var(--success)' : 'var(--danger)');
+
+        const btnDisabled = computed([isMatch], () => !isMatch.peek());
+        bindProp('submit-btn', 'disabled', btnDisabled);
+        bindClick('submit-btn', () => alert('Form Submitted!'));
+
+        // ==========================================
+        // 3. LIST RENDERING & HTML
+        // ==========================================
+        const todos = signal([{ id: 1, text: 'Learn bid.js', done: true }]);
         const todoText = signal('');
-        let todoId = 1;
-        const todos = signal([]);
+        let todoId = 2;
 
         bindValue('todo-input', todoText);
+        bindClick('add-btn', () => {
+            const t = todoText.peek().trim();
+            if (t) {
+                todos.value = [...todos.peek(), { id: todoId++, text: t, done: false }];
+                todoText.value = '';
+            }
+        });
 
         bindList('todo-list', todos, (item, index, existing) => {
             if (existing) {
                 existing.querySelector('span').textContent = item.text;
                 existing.querySelector('input').checked = item.done;
-                existing.classList.toggle('done', item.done);
+                existing.className = item.done ? 'done' : '';
                 return existing;
             }
             const li = document.createElement('li');
             li.className = item.done ? 'done' : '';
             li.innerHTML = `
-            <input type="checkbox" ${item.done ? 'checked' : ''}>
-            <span style="flex:1">${item.text}</span>
-            <button style="background:transparent;border:none;color:var(--danger);cursor:pointer;">×</button>
-        `;
-            const cb = li.querySelector('input');
-            const del = li.querySelector('button');
-            cb.addEventListener('change', () => {
-                todos.value = todos.value.map(t => t.id === item.id ? { ...t, done: cb.checked } : t);
+                <input type="checkbox" ${item.done ? 'checked' : ''}>
+                <span style="flex:1">${item.text}</span>
+                <button class="danger" style="padding: 0.15rem 0.5rem;">×</button>
+            `;
+            li.querySelector('input').addEventListener('change', (e) => {
+                todos.value = todos.peek().map(t => t.id === item.id ? { ...t, done: e.target.checked } : t);
             });
-            del.addEventListener('click', () => {
-                todos.value = todos.value.filter(t => t.id !== item.id);
+            li.querySelector('button').addEventListener('click', () => {
+                todos.value = todos.peek().filter(t => t.id !== item.id);
             });
             return li;
-        }, { keyFn: item => item.id });
+        }, { keyFn: i => i.id });
 
-        bindClick('add-btn', () => {
-            const text = todoText.value.trim();
-            if (!text) return;
-            todos.value = [...todos.value, { id: todoId++, text, done: false }];
-            todoText.value = '';
-        });
+        // bindHtml implementation
+        const htmlCode = signal('<b>bid.js</b> allows <i>raw HTML</i> injection! <span style="color:var(--accent)">Check the console for the XSS warning.</span>');
+        bindValue('html-input', htmlCode);
+        bindHtml('html-output', htmlCode);
 
-        // === 4. NESTED SIGNALS & DEEP REACTIVITY ===
-        const user = {
-            name: signal('John Doe'),
-            email: signal('john@example.com'),
-            role: signal('user'),
-            active: signal(true)
-        };
-
-        bindValue('user-name', user.name);
-        bindValue('user-email', user.email);
-        bindValue('user-role', user.role);
-
-        // Checkbox binding using bindClick (checkbox acts like a button!)
-        bindClick('user-active', () => {
-            user.active.value = !user.active.value;
-        });
-
-        user.active.subscribe((value) => {
-            document.querySelector('[bid="user-active"]').checked = value;
-        });
-
-        const profilePreview = computed(
-            [user.name, user.email, user.role, user.active],
-            () => {
-                const name = user.name.peek() || 'No name';
-                const email = user.email.peek() || 'No email';
-                const role = user.role.peek();
-                const active = user.active.peek() ? '✅ Active' : '❌ Inactive';
-                return `${name} (${email}) - ${role} - ${active}`;
-            }
-        );
-        bindText('profile-preview', profilePreview);
-
-        const userStatus = computed([user.active], () => {
-            return user.active.peek() ? '🟢 Active' : '🔴 Inactive';
-        });
-        bindText('user-status', userStatus);
-
-        bindClick('reset-user', () => {
-            user.name.value = 'John Doe';
-            user.email.value = 'john@example.com';
-            user.role.value = 'user';
-            user.active.value = true;
-        });
-
-        // === 5. INPUT WITH SEARCH DROPDOWN (BID WAY - NO addEventListener) ===
-        const countries = [
-            'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola',
-            'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
-            'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus',
-            'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia',
-            'Brazil', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia',
-            'Cameroon', 'Canada', 'Chile', 'China', 'Colombia',
-            'Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus',
-            'Denmark', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador',
-            'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'France',
-            'Germany', 'Ghana', 'Greece', 'Guatemala', 'Honduras',
-            'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran',
-            'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica',
-            'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kuwait',
-            'Kyrgyzstan', 'Latvia', 'Lebanon', 'Liberia', 'Libya',
-            'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia',
-            'Mali', 'Malta', 'Mauritania', 'Mauritius', 'Mexico',
-            'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco',
-            'Mozambique', 'Myanmar', 'Namibia', 'Nepal', 'Netherlands',
-            'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Norway',
-            'Oman', 'Pakistan', 'Panama', 'Paraguay', 'Peru',
-            'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania',
-            'Russia', 'Rwanda', 'Saudi Arabia', 'Senegal', 'Serbia',
-            'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Somalia',
-            'South Africa', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname',
-            'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan',
-            'Tanzania', 'Thailand', 'Togo', 'Trinidad and Tobago', 'Tunisia',
-            'Turkey', 'Turkmenistan', 'Uganda', 'Ukraine', 'United Arab Emirates',
-            'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Venezuela',
-            'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
-        ];
-
+        // ==========================================
+        // 4. COMPONENTS
+        // ==========================================
+        // Dropdown
+        const countries = ['Austria', 'Belgium', 'Canada', 'Denmark', 'Estonia', 'France', 'Germany', 'Hungary', 'Iceland', 'Japan', 'Romania', 'USA'];
         const countrySearch = signal('');
         const selectedCountry = signal('');
         const isCountryOpen = signal(false);
-
-        const filteredCountries = computed([countrySearch], () => {
-            const term = countrySearch.peek().toLowerCase().trim();
-            if (!term) return [];
-            return countries
-                .filter(c => c.toLowerCase().includes(term))
-                .slice(0, 8);
-        });
 
         bindValue('country-search', countrySearch);
         bindText('selected-country', computed([selectedCountry], () => selectedCountry.peek() || 'None'));
         bindClass('country-dropdown', isCountryOpen, 'show');
 
-        // Render dropdown
-        // Render dropdown
+        const filteredCountries = computed([countrySearch], () => {
+            const term = countrySearch.peek().toLowerCase();
+            return term ? countries.filter(c => c.toLowerCase().includes(term)).slice(0, 6) : [];
+        });
+
         bindList('country-dropdown', filteredCountries, (country) => {
             const div = document.createElement('div');
             div.className = 'dropdown-item';
             div.textContent = country;
             div.dataset.value = country;
             return div;
-        }, {
-            keyFn: country => country // <-- This is the magic fix!
-        });
+        }, { keyFn: c => c });
 
-        // Click on search input - show dropdown
-        bindClick('country-search', () => {
-            if (countrySearch.value.trim()) {
-                isCountryOpen.value = true;
-            }
-        });
+        bindClick('country-search', () => { if (countrySearch.peek()) isCountryOpen.value = true; });
+        countrySearch.subscribe(v => { if (v) isCountryOpen.value = true; });
+        bindClick('clear-country', () => { countrySearch.value = ''; isCountryOpen.value = false; });
 
-        // Click on dropdown items - select country
         bindClick('country-dropdown', (e) => {
-            const item = e.target.closest('.dropdown-item');
-            if (item && item.dataset.value) {
-                selectedCountry.value = item.dataset.value;
-                countrySearch.value = item.dataset.value;
-                isCountryOpen.value = false;
-            }
+            const val = e.target.closest('.dropdown-item')?.dataset.value;
+            if (val) { selectedCountry.value = val; countrySearch.value = val; isCountryOpen.value = false; }
         });
-
-        // Click on wrapper (outside) - close dropdown
+        
         bindClick('country-wrapper', (e) => {
-            const target = e.target;
-            const isSearch = target.closest('[bid="country-search"]');
-            const isDropdown = target.closest('[bid="country-dropdown"]');
-            const isClear = target.closest('[bid="clear-country-search"]');
-            const isSelect = target.closest('[bid="select-country-btn"]');
-            if (!isSearch && !isDropdown && !isClear && !isSelect) {
-                isCountryOpen.value = false;
-            }
+            if (!e.target.closest('.search-container') && !e.target.closest('.dropdown-list')) isCountryOpen.value = false;
         });
 
-        // Subscribe to search term changes
-        countrySearch.subscribe((val) => {
-            if (val.trim()) {
-                isCountryOpen.value = true;
-            }
-        });
+        // Modal
+        const modalOpen = signal(false);
+        bindClass('#modal-bid', modalOpen, 'visible');
+        bindClick('open-modal', () => modalOpen.value = true);
+        bindClick('close-modal', () => modalOpen.value = false);
+        bindClick('confirm-modal', () => { alert('Confirmed!'); modalOpen.value = false; });
+        bindEvent(document.getElementById('modal-bid'), 'click', (e) => { if (e.target.id === 'modal-bid') modalOpen.value = false; });
 
-        // Clear button
-        bindClick('clear-country-search', () => {
-            countrySearch.value = '';
-            isCountryOpen.value = false;
-            document.querySelector('[bid="country-search"]').focus();
-        });
-
-        // Select button
-        bindClick('select-country-btn', () => {
-            const val = countrySearch.value.trim();
-            if (val && countries.includes(val)) {
-                selectedCountry.value = val;
-                isCountryOpen.value = false;
-            } else if (val) {
-                alert('Please select a valid country from the dropdown');
-                document.querySelector('[bid="country-search"]').focus();
-            }
-        });
-
-        // === 6. TABLE WITH SEARCH DROPDOWN (BID WAY) ===
-        const users = signal([
-            { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role: 'developer' },
-            { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'designer' },
-            { id: 3, name: 'Carol White', email: 'carol@example.com', role: 'manager' },
-            { id: 4, name: 'Dave Brown', email: 'dave@example.com', role: 'developer' },
-            { id: 5, name: 'Eve Davis', email: 'eve@example.com', role: 'designer' },
-            { id: 6, name: 'Frank Wilson', email: 'frank@example.com', role: 'manager' },
-        ]);
-        let nextUserId = 7;
-
-        const searchTerm = signal('');
-        const roleFilter = signal('all');
-        const isUserOpen = signal(false);
-
-        const filteredUsers = computed([users, searchTerm, roleFilter], () => {
-            let result = users.peek();
-            const term = searchTerm.peek().toLowerCase();
-            const role = roleFilter.peek();
-            if (term) {
-                result = result.filter(u =>
-                    u.name.toLowerCase().includes(term) ||
-                    u.email.toLowerCase().includes(term)
-                );
-            }
-            if (role !== 'all') {
-                result = result.filter(u => u.role === role);
-            }
-            return result;
-        });
-
-        bindValue('search-input', searchTerm);
-        bindValue('role-filter', roleFilter);
-        bindClass('user-dropdown', isUserOpen, 'show');
-
-        // User dropdown items
-        const userDropdownItems = computed([searchTerm, users], () => {
-            const term = searchTerm.peek().toLowerCase();
-            if (!term) return [];
-            return users.peek().filter(u =>
-                u.name.toLowerCase().includes(term) ||
-                u.email.toLowerCase().includes(term)
-            ).slice(0, 5);
-        });
-
-        bindList('user-dropdown', userDropdownItems, (item, index, existing) => {
-            if (existing) {
-                existing.innerHTML = `
-                <span>${item.name}</span>
-                <span class="sub-text">${item.email}</span>
-            `;
-                existing.dataset.value = item.name;
-                return existing;
-            }
-            const div = document.createElement('div');
-            div.className = 'dropdown-item';
-            div.innerHTML = `
-            <span>${item.name}</span>
-            <span class="sub-text">${item.email}</span>
-        `;
-            div.dataset.value = item.name;
-            return div;
-        }, { keyFn: item => item.id });
-
-        // Click on search input - show dropdown
-        bindClick('search-input', () => {
-            if (searchTerm.value.trim()) {
-                isUserOpen.value = true;
-            }
-        });
-
-        // Click on dropdown items - select user
-        bindClick('user-dropdown', (e) => {
-            const item = e.target.closest('.dropdown-item');
-            if (item && item.dataset.value) {
-                searchTerm.value = item.dataset.value;
-                isUserOpen.value = false;
-            }
-        });
-
-        // Click on wrapper (outside) - close dropdown
-        bindClick('user-wrapper', (e) => {
-            const target = e.target;
-            const isSearch = target.closest('[bid="search-input"]');
-            const isDropdown = target.closest('[bid="user-dropdown"]');
-            const isClear = target.closest('[bid="clear-search"]');
-            const isAdd = target.closest('[bid="add-user-btn"]');
-            const isFilter = target.closest('[bid="role-filter"]');
-            if (!isSearch && !isDropdown && !isClear && !isAdd && !isFilter) {
-                isUserOpen.value = false;
-            }
-        });
-
-        // Subscribe to search term changes
-        searchTerm.subscribe((val) => {
-            if (val.trim()) {
-                isUserOpen.value = true;
-            }
-        });
-
-        bindClick('clear-search', () => {
-            searchTerm.value = '';
-            isUserOpen.value = false;
-            document.querySelector('[bid="search-input"]').focus();
-        });
-
-        // Table rendering
-        bindList('user-table', filteredUsers, (item, index, existing) => {
-            if (existing) {
-                const cells = existing.querySelectorAll('td');
-                cells[0].textContent = item.name;
-                cells[1].textContent = item.email;
-                cells[2].innerHTML = `<span class="badge badge-success">${item.role}</span>`;
-                return existing;
-            }
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-            <td>${item.name}</td>
-            <td>${item.email}</td>
-            <td><span class="badge badge-success">${item.role}</span></td>
-            <td><button class="danger" style="background:transparent;border:none;color:var(--danger);cursor:pointer;">×</button></td>
-        `;
-            const delBtn = tr.querySelector('button');
-            delBtn.addEventListener('click', () => {
-                users.value = users.value.filter(u => u.id !== item.id);
-            });
-            return tr;
-        }, { keyFn: item => item.id });
-
-        bindText('visible-count', computed([filteredUsers], () => filteredUsers.peek().length));
-        bindText('total-count', computed([users], () => users.peek().length));
-
-        bindClick('add-user-btn', () => {
-            const name = prompt('Enter user name:');
-            if (!name) return;
-            const email = prompt('Enter email:');
-            if (!email) return;
-            const role = prompt('Enter role (developer/designer/manager):') || 'developer';
-            users.value = [...users.value, {
-                id: nextUserId++,
-                name: name.trim(),
-                email: email.trim(),
-                role: role.toLowerCase().trim()
-            }];
-        });
-
-        // === 7. CLEANUP ===
-        let widgetCount = 0;
+        // ==========================================
+        // 5. DOM CLEANUP
+        // ==========================================
+        let widgets = 0;
         bindClick('spawn-btn', () => {
-            widgetCount++;
+            widgets++;
             const div = document.createElement('div');
-            div.id = 'w-' + widgetCount;
-            div.className = 'row';
-            div.style.cssText = 'background:var(--bg);padding:0.5rem;border-radius:var(--radius);margin-bottom:0.5rem;border:1px solid var(--border);';
-            div.innerHTML = `
-            <span>Widget #${widgetCount}</span>
-            <input bid="w-${widgetCount}-in" placeholder="Type..." style="flex:1">
-            <span bid="w-${widgetCount}-out" class="badge">...</span>
-        `;
+            div.id = 'w-' + widgets;
+            div.className = 'row preview-box mt-1';
+            div.style.minHeight = 'auto';
+            div.innerHTML = `<span>Memory Safe Component #${widgets}</span> <input bid="w-${widgets}-in" style="flex:1"> <strong bid="w-${widgets}-out" class="badge"></strong>`;
             document.getElementById('widget-box').appendChild(div);
 
-            const ws = signal('');
-            bindValue('w-' + widgetCount + '-in', ws);
-            bindText('w-' + widgetCount + '-out', ws, v => v || '...');
+            const s = signal('Synced');
+            bindValue(`w-${widgets}-in`, s);
+            bindText(`w-${widgets}-out`, s);
         });
 
         bindClick('destroy-btn', () => {
             const box = document.getElementById('widget-box');
-            const last = box.lastElementChild;
-            if (!last) return;
-            unbind('#' + last.id);
-            last.remove();
+            if (box.lastElementChild) box.lastElementChild.remove(); // MutationObserver cleans bindings
         });
-        /******************* Modal ****************/
-        function createModal(id) {
-            const isOpen = signal(false);
 
-            // Toggle visibility class
-            bindClass('#' + id, isOpen, 'visible');
+        // ==========================================
+        // 6. VIRTUALIZED TABLE
+        // ==========================================
+        (function initTable() {
+            const ROW_HEIGHT = 36;
+            const OVERSCAN = 10;
+            const statuses = ['Active', 'Pending', 'Offline'];
+            
+            const rows = signal([]);
+            const scrollTop = signal(0);
+            const containerHeight = signal(400);
+            const sortAsc = signal(true);
 
-            // Close on backdrop click
-            const el = document.getElementById(id);
-            if (el) {
-                bindEvent(el, 'click', (e) => {
-                    if (e.target === el) isOpen.value = false;
-                });
+            function generate(count) {
+                return Array.from({length: count}, (_, i) => ({
+                    id: i + 1,
+                    name: `User ${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+                    status: statuses[i % 3],
+                    progress: Math.floor(Math.random() * 100)
+                }));
             }
 
-            // Close on Escape
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && isOpen.value) isOpen.value = false;
+            const sortedData = computed([rows, sortAsc], () => {
+                let data = rows.peek() || [];
+                const asc = sortAsc.peek() ? 1 : -1;
+                return [...data].sort((a, b) => a.name.localeCompare(b.name) * asc);
             });
 
-            return {
-                open: () => isOpen.value = true,
-                close: () => isOpen.value = false,
-                toggle: () => isOpen.value = !isOpen.value,
-                isOpen: () => isOpen.value
-            };
-        }
-        function confirmModal() {
-            alert('confirmed-modal')
-            modal.close()
-        }
+            const visibleWindow = computed([scrollTop, containerHeight, rows], () => {
+                const total = rows.peek().length;
+                if (!total) return { start: 0, end: 0 };
+                const start = Math.max(0, Math.floor(scrollTop.peek() / ROW_HEIGHT) - OVERSCAN);
+                const count = Math.ceil(containerHeight.peek() / ROW_HEIGHT) + (OVERSCAN * 2);
+                return { start, end: Math.min(total, start + count) };
+            });
 
-        const modal = createModal('modal-bid');
-        bindClick('open-modal', () => modal.open());
-        bindClick('close-modal', () => modal.close());
-        bindClick('confirm-modal', () => confirmModal())
+            const container = document.getElementById('tableScroll');
+            const scrollContent = document.getElementById('scrollContent');
+            const tbody = document.querySelector('#tableBody tbody');
+
+            const tableList = bindList('#tableBody tbody', sortedData, (item) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td><span class="badge ${item.status === 'Active' ? 'badge-success' : (item.status === 'Offline' ? 'badge-danger' : '')}">${item.status}</span></td>
+                    <td><div class="progress-track"><div class="progress-fill" style="width: ${item.progress}%"></div></div></td>
+                `;
+                return tr;
+            }, { windowFn: arr => arr.slice(visibleWindow.peek().start, visibleWindow.peek().end) });
+
+            rows.subscribe(() => { scrollContent.style.height = `${rows.peek().length * ROW_HEIGHT}px`; tableList.rerender(); });
+            scrollTop.subscribe(() => { tbody.style.transform = `translateY(${visibleWindow.peek().start * ROW_HEIGHT}px)`; tableList.rerender(); });
+
+            bindEvent(container, 'scroll', () => scrollTop.value = container.scrollTop, { passive: true });
+            
+            const stats = computed([scrollTop, rows, visibleWindow], () => ({
+                total: rows.peek().length,
+                dom: Math.max(0, visibleWindow.peek().end - visibleWindow.peek().start)
+            }));
+            bindText('statTotal', stats, v => v.total.toLocaleString());
+            bindText('statDom', stats, v => v.dom);
+
+            bindClick('btnLoad', () => rows.value = generate(100000));
+            bindClick('btnUpdate', () => {
+                const data = rows.peek();
+                if(!data.length) return;
+                const idx = Math.floor(Math.random() * data.length);
+                data[idx].progress = Math.floor(Math.random() * 100);
+                tableList.rerender();
+            });
+            bindClick('btnSort', () => {
+                sortAsc.value = !sortAsc.peek();
+                document.querySelector('th[data-col="name"]').className = sortAsc.peek() ? 'sort-asc' : 'sort-desc';
+            });
+
+            setTimeout(() => document.querySelector('[bid="btnLoad"]').click(), 100);
+        })();
+
     </script>
-
 </body>
-
 </html>
